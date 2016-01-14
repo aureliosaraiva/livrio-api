@@ -36,7 +36,7 @@ CELERYD_CONCURRENCY = 8
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-MONGO_DB = "mongodb://localhost:27017"
+MONGO_DB = "mongodb://localhost:4321"
 
 AWS = {
     'AWS_ACCESS_KEY_ID': 'AKIAIBMTRNWUF2TRMYVA',
@@ -49,7 +49,7 @@ EVE_SETTINGS = {
     'WTF_CSRF_ENABLED':True,
     'SECRET_KEY':'you-will-never-guess',
     'MONGO_HOST': 'localhost',
-    'MONGO_PORT': 27017,
+    'MONGO_PORT': 4321,
     'MONGO_DBNAME': 'livrio',
     'DEBUG': True,
     'SOFT_DELETE': True,
@@ -145,5 +145,5 @@ EVE_SETTINGS = {
 
 
 ## MONGODB CONNECTION
-mongo_client = MongoClient(MONGO_DB)
-db = mongo_client.livrio
+#mongo_client = MongoClient(MONGO_DB)
+#db = mongo_client.livrio
