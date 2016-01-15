@@ -2,3 +2,4 @@ eve
 celery
 bottlenose
 untangle
+requests

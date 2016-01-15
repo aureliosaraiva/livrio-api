@@ -45,11 +45,11 @@ AWS = {
 }
 
 
-EVE_SETTINGS = {
+EVE_SETTINGS_APP = {
     'WTF_CSRF_ENABLED':True,
     'SECRET_KEY':'you-will-never-guess',
     'MONGO_HOST': 'localhost',
-    'MONGO_PORT': 4321,
+    'MONGO_PORT': 27017,
     'MONGO_DBNAME': 'livrio',
     'DEBUG': True,
     'SOFT_DELETE': True,
@@ -143,7 +143,80 @@ EVE_SETTINGS = {
     'ITEM_METHODS': [ 'GET','DELETE' ]
 }
 
+EVE_SETTINGS_ISBN = {
+    'MONGO_HOST': 'localhost',
+    'MONGO_PORT': 27017,
+    'MONGO_DBNAME': 'livrio',
+    'DEBUG': True,
+    'SOFT_DELETE': True,
+    'SORTING': False,
+    'PAGINATION': False,
+    'API_VERSION': 'v1',
+    'X_EXPOSE_HEADERS': ['content-type'],
+    'X_HEADERS': ['content-type'],
+    'X_DOMAINS': '*',
+    'EXTRA_RESPONSE_FIELDS':[],
+    'HATEOAS': False,
+    'OPLOG': False,
+    'OPLOG_AUDIT': False,
+    'IF_MATCH': False,
+    'VALIDATION_ERROR_AS_STRING': True,
+    'DOMAIN': {
+        'isbn':{
+            'url':'book',
+            'additional_lookup': {
+                'url': 'regex("[\w]+")',
+                'field': 'isbn',
+            },
+            'item_lookup_field': 'isbn',
+            'cache_control': '',
+            'cache_expires': 0,
+            'schema': {
+                'title': {
+                    'type': 'string'
+                },
+                'subtitle': {
+                    'type': 'string'
+                },
+                'isbn': {
+                    'type': 'string',
+                    'unique': True
+                },
+                'isbn_10': {
+                    'type': 'string'
+                },
+                
+                'isbn_other': {
+                    'type': 'string'
+                },
+                'authors': {
+                    'type': 'string'
+                },
+                'publisher': {
+                    'type': 'string'
+                },
+                'published_date': {
+                    'type': 'string'
+                },
+                'page_count': {
+                    'type': 'string'
+                },
+                'categories': {
+                    'type': 'list'
+                },
+                'language': {
+                    'type': 'string'
+                },
+                'description': {
+                    'type': 'string'
+                },
+                'cover': {
+                    'type': 'string'
+                }
+            }
+        }
+    },
+    'RESOURCE_METHODS' : ['GET','POST']
+}
 
-## MONGODB CONNECTION
-#mongo_client = MongoClient(MONGO_DB)
-#db = mongo_client.livrio
+
