@@ -1,0 +1,29 @@
+
+ Background Task
+
+ - Notification
+ -- First Book
+ -- First Friend
+ -- Like  Book
+ -- Welcome
+ -- 
+
+ - Download cover the book
+ - Register Like book
+ - Send recommend a book
+ - User
+ -- Get location
+ -- Download cover
+ - Send mail
+ -- Signup
+ -- Recover passoword
+ -- Recommend book
+ -- Request friend
+ -- Request book loan
+ - Send push (GCM, APN)
+ -- Like book
+ -- Recommend book
+ -- First book
+ -- First friend
+ -- Request friend
+ -- Request book loan

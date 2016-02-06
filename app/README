@@ -1,0 +1,31 @@
+
+- End point
+-- /v1/book
+-- /v1/book/:id/like
+-- /v1/book/:id/unlike
+-- /v1/book/:id/recommed
+-- /v1/book/:id/comment
+-- /v1/account
+-- /v1/shelf
+-- /v1/notification
+-- /v1/friend
+-- /v1/friend/:id/book
+-- /v1/friend/:id/invite
+-- /v1/friend/:id/invite/:id/response
+
+
+-- Create account
+-- Update account
+-- Update Token
+-- Lista friend
+-- View list book friend
+-- View book friend
+-- Like book friend
+-- Commnet book frined
+-- Recommend book friend
+-- Loaned
+-- Search book friend
+-- Search book global
+-- Change cover book
+-- Change cover user
+-- Change photo user
