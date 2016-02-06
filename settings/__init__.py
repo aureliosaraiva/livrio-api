@@ -44,6 +44,9 @@ AWS = {
     'AWS_ASSOCIATE_TAG': 'livrio08-20'
 }
 
+SENDGRID = {
+    'API_KEY': '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'
+}
 
 EVE_SETTINGS_APP = {
     'WTF_CSRF_ENABLED':True,
@@ -52,6 +55,7 @@ EVE_SETTINGS_APP = {
     'MONGO_PORT': 27017,
     'MONGO_DBNAME': 'livrio',
     'DEBUG': True,
+    #'ALLOW_UNKNOWN': True,
     'SOFT_DELETE': True,
     'SORTING': True,
     'PAGINATION': True,
@@ -69,78 +73,83 @@ EVE_SETTINGS_APP = {
     'VALIDATION_ERROR_AS_STRING': True,
     'DOMAIN': {
         'accounts': {
-            'allowed_roles': ['superuser', 'admin'],
-            'cache_control': '',
-            'cache_expires': 0,
-            'extra_response_fields': ['token'],
-            'schema': {
-                'username': {
-                    'type': 'string',
-                    'required': True,
-                    'unique': True,
-                },
-                'password': {
-                    'type': 'string',
-                    'required': True,
-                },
-                'roles': {
-                    'type': 'list',
-                    'allowed': ['user', 'superuser', 'admin'],
-                    'required': True,
-                },
-                'token': {
-                    'type': 'string'
-                }
-            }
-        },
-        'isbn':{
             'cache_control': '',
             'cache_expires': 0,
             'schema': {
-                'title': {
+                'email': {
+                    'type': 'string',
+                    'required': True,
+                    'unique': True
+                },
+                'fullname': {
                     'type': 'string'
                 },
-                'subtitle': {
+                'first_name': {
                     'type': 'string'
                 },
-                'isbn_10': {
+                'last_name': {
                     'type': 'string'
                 },
-                'isbn_13': {
+                'gender': {
                     'type': 'string'
                 },
-                'isbn_other': {
-                    'type': 'string'
-                },
-                'authors': {
-                    'type': 'string'
-                },
-                'publisher': {
-                    'type': 'string'
-                },
-                'publishedDate': {
-                    'type': 'string'
-                },
-                'pageCount': {
-                    'type': 'string'
-                },
-                'categories': {
-                    'type': 'list'
-                },
-                'language': {
-                    'type': 'string'
-                },
-                'description': {
+                'photo': {
                     'type': 'string'
                 },
                 'cover': {
                     'type': 'string'
+                },
+                'birthday': {
+                    'type': 'string'
+                },
+                'origin': {
+                    'type': 'dict'
+                },
+                'roles': {
+                    'type': 'list',
+                    'allowed': ['user', 'superuser', 'admin'],
+                    'default': ['user']
+                }
+            }
+        },
+        'shelves': {
+            'cache_control': '',
+            'cache_expires': 0,
+            'datasource': {
+                'default_sort': [('name',1)] 
+            },
+            'schema': {
+                'name': {
+                    'type': 'string',
+                    'required': True
+                },
+                'account_id': {
+                    'type':'objectid',
+                    'readonly': True
+                }
+            }
+        },
+        'event_tracker': {
+            'url':'tracker',
+            'cache_control': '',
+            'cache_expires': 0,
+            'schema': {
+                'type': {
+                    'type': 'string',
+                    'required': True
+                },
+                'entity_id': {
+                    'type': 'string'
+                },
+                'origin': {
+                    'type': 'dict',
+                    'default' : {}
                 }
             }
         }
     },
     'RESOURCE_METHODS' : ['GET','POST','DELETE'],
-    'ITEM_METHODS': [ 'GET','DELETE' ]
+    'ITEM_METHODS': [ 'GET','PATCH','DELETE' ]
 }
 
 EVE_SETTINGS_ISBN = {

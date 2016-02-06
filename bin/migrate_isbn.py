@@ -13,7 +13,7 @@ db = MySQLdb.connect(host=DATABASE['host'],
 
 conn = db.cursor()
 
-query = """SELECT * FROM sys_isbns ORDER by id ASC LIMIT 10"""
+query = """SELECT * FROM sys_isbns ORDER by id ASC"""
 conn.execute(query)
 result = conn.fetchall()
 for row in result:

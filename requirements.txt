@@ -3,3 +3,7 @@ celery
 bottlenose
 untangle
 requests
+sendgrid
+smtpapi
+redis
+boto
