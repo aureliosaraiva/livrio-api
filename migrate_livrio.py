@@ -9,11 +9,11 @@ from util import token
 from bson import json_util
 from bson.objectid import ObjectId
 
-DATABASE = {'host': 'mysql01.codeway.com.br', 'user': 'CodeWay_Livrio', 'pass': 'vqtIeyYfohR7fjE4', 'base': 'CodeWay_Livrio'}
+DATABASE = {'host': 'mysql01.codeway.in', 'user': 'CodeWay_Livrio', 'pass': 'vqtIeyYfohR7fjE4', 'base': 'CodeWay_Livrio'}
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-MONGO_DB = "mongodb://db.codeway.com.br:27017"
+MONGO_DB = "mongodb://db.codeway.in:27017"
 
 db = MySQLdb.connect(host=DATABASE['host'],
                      user=DATABASE['user'],
