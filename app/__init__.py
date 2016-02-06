@@ -273,6 +273,18 @@ def route_book_save(book_id):
     result = book.save(account_id, request.json, book_id)
     return render.render_json(result), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
+@app.route('/v1/books/<book_id>',methods=['DELETE'])
+def route_book_delete(book_id):
+    route_require_auth()
+    account_id = app.auth.get_request_auth_value()
+    book_id = ObjectId(book_id)
+
+    book.delete(account_id, book_id)
+    data = {
+        '_status': 'OK'
+    }
+    return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
 @app.route('/v1/books/<book_id>/like',methods=['POST','DELETE'])
 def route_book_like(book_id):
     route_require_auth()

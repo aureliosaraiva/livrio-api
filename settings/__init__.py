@@ -7,6 +7,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # Celery Task Broker settings.
 #######################################################################
 
+
+#db.accounts.createIndex( { email: 1 }, { unique: true } )
+
+
 # Task Broker
 RABBITMQ_HOST = 'localhost'
 RABBITMQ_USER = 'guest'
@@ -46,6 +50,10 @@ AWS = {
 
 SENDGRID = {
     'API_KEY': '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'
+}
+
+PUSH = {
+    'GCM': 'AIzaSyCbBO_cyYLTpUm3VOWx7RazZAo6kxnpoq0'
 }
 
 EVE_SETTINGS_APP = {

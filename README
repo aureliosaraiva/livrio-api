@@ -1,5 +1,6 @@
 
 # Usuários
+
 - Cadastro de usuário
 - Cadastro de usuário pelo facebook
 - Login
@@ -9,3 +10,79 @@
 - Atualização dos dados do perfil do usuário
 - Atualização do cover do usuário
 - Atualização do avatar do usuário
+
+# Livros
+
+## visualização
+- Listagem dos meus livros
+- Listagem dos meus livros com informação de emprestimo
+- Listagem dos meus livros (scroll infiniti)
+- Visualização dos meus livros
+- Curtir meu livro
+- Recomendar meu livro
+- Comentar meu livro
+- Cadastrar livro pelo ISBN
+- Cadastrar livro manualmente
+- Cadastrar livro manualmente com foto
+- Cadastrar livro pela pesquisa de livros
+- Cadastrar livro pelo leitor
+- Cadastrar livro duplicado
+- Atualizar informação do livro
+- Atualizar capa do livro
+- Editar estante do livro
+- Remover livro
+
+
+# Estantes
+
+- Cadastrar estante
+- Editar estante
+- Visualizar estantes
+- Visualizar livros da estante
+- Remover estante
+- Remover livro na estante
+
+#emprestimos
+
+- Visualizar meus livros emprestado
+- Visualizar livros dos meus amigos que estao emprestado
+
+
+# Amigos
+- Pesquisar novos amigos
+- Pesquisa novos amigos por nome, email
+- Pesquisar novos amigos scroll infiniti
+- Carregar contatos do celular
+- Enviar solicitação de amizade
+- Enviar solicitação de convite
+- Visualizar mus amigos
+- Visualizar meus amigos scroll infiniti
+- Visualizar perfil do meu amigo
+- Desfazer amizade
+- Ver livro do meu amigo
+- Curtir livro do meu amigo
+- Comentar livro do meu amigo
+- Recomendar livro do meu amigo
+- Solicitar amizade
+- Confirmar amizade
+- Nao aceitar amizade
+
+
+# Email
+
+- Novos usuários
+
+# Push
+
+- Bem vindo ao livrio
+- Primeiro livro
+- Primeira amizade
+- Solicitação de amizade
+- Notificação de vinculo de amizade
+- Curtir livro
+- Recomendar livro
+- Solicitação de emprestimo
+- Solicitação de devolução
+
+
+

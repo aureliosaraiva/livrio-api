@@ -7,3 +7,6 @@ sendgrid
 smtpapi
 redis
 boto
+facebook-sdk
+python-gcm
+apns

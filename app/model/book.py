@@ -91,9 +91,14 @@ def save(account_id, data, book_id=None):
     if 'cover_source' in data:
         save_cover(book_id, data['cover_source'])
 
-    return book_info(account_id, account_id, book_id)
+    return book_info(account_id, book_id)
 
 
+def delete(account_id, book_id):
+    db = app.data.driver.db['books']
+    lookup = {'_id': book_id,'account_id': account_id}
+    db.update_one(lookup, {'$set': {'_deleted':True}})
+    return True
 
 
 #@bugfix melhorar logica
