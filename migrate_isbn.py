@@ -8,6 +8,7 @@ from datetime import datetime
 from util import token
 from bson import json_util
 from bson.objectid import ObjectId
+from math  import ceil
 
 DATABASE = {'host': 'mysql01.codeway.com.br', 'user': 'CodeWay_Livrio', 'pass': 'vqtIeyYfohR7fjE4', 'base': 'CodeWay_Livrio'}
 REDIS_HOST = 'localhost'
@@ -72,32 +73,42 @@ date_utc = datetime.utcnow().replace(microsecond=0)
 
 
 print "sys_isbns"
-query = """SELECT * FROM sys_isbns"""
+offset = 0
+query = "SELECT count(*) as total FROM sys_isbns"
 conn.execute(query)
-result = conn.fetchall()
-for row in result:
-    payload = {
-        '_created': date_utc,
-        '_updated': date_utc,
-        '_deleted': False,
-        'isbn': row['isbn'],
-        'isbn_10': row['isbn_10'],
-        'title': row['title'],
-        'authors': row['author'],
-        'description': row['description'],
-        'cover': row['thumb'],
-        'page_count': row['page_count'],
-        'publisher': row['publisher'],
-        'publishedDate': row['published_year'],
-        'categories': [row['category']],
-        'origin': {'name':row['origin'],'id':item['id']}
-    }
+result = conn.fetchone()
 
-    payload = remove_empty_from_dict(payload)
+total = result['total']
+page = ceil(total/5000)
 
-    if not 'isbn' in payload and 'isbn_10' in payload:
-        payload['isbn'] = '978' + payload['isbn_10']
+for i in range(0, page):
+    query = "SELECT * FROM sys_isbns limit {},5000".format(i*5000)
+    conn.execute(query)
+    result = conn.fetchall()
+    print "PAGE: " + i
+    for row in result:
+        payload = {
+            '_created': date_utc,
+            '_updated': date_utc,
+            '_deleted': False,
+            'isbn': row['isbn'],
+            'isbn_10': row['isbn_10'],
+            'title': row['title'],
+            'authors': row['author'],
+            'description': row['description'],
+            'cover': row['thumb'],
+            'page_count': row['page_count'],
+            'publisher': row['publisher'],
+            'publishedDate': row['published_year'],
+            'categories': [row['category']],
+            'origin': {'name':row['origin'],'id':item['id']}
+        }
 
-    db.isbn.insert_one(payload)
+        payload = remove_empty_from_dict(payload)
+
+        if not 'isbn' in payload and 'isbn_10' in payload:
+            payload['isbn'] = '978' + payload['isbn_10']
+
+        db.isbn.insert_one(payload)
 
 
