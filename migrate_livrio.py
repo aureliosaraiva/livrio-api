@@ -8,6 +8,7 @@ from datetime import datetime
 from util import token
 from bson import json_util
 from bson.objectid import ObjectId
+from math  import ceil
 
 DATABASE = {'host': 'mysql01.codeway.com.br', 'user': 'CodeWay_Livrio', 'pass': 'vqtIeyYfohR7fjE4', 'base': 'CodeWay_Livrio'}
 REDIS_HOST = 'localhost'
