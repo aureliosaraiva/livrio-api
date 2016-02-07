@@ -85,7 +85,7 @@ for i in range(0, page):
     query = "SELECT * FROM sys_isbns limit {},5000".format(i*5000)
     conn.execute(query)
     result = conn.fetchall()
-    print "PAGE: " + i
+    print "PAGE: " + str(i)
     for row in result:
         payload = {
             '_created': date_utc,
