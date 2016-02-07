@@ -9,7 +9,7 @@ from boto.s3.key import Key
 from settings import AWS
 
 def to_url(bucket, key):
-    return 'https://s3-sa-east-1.amazonaws.com/'+ str(bucket) +'/' + str(key)
+    return 'https://'+ str(bucket) +'.s3-sa-east-1.amazonaws.com/'+ str(key)
 
 
 def download_file_from_url(url):
