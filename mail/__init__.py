@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import sendgrid
 from settings import SENDGRID
-from string import Template
+from util import file_get_contents
+from jinja2 import Template
 
 sg = sendgrid.SendGridClient(SENDGRID['API_KEY'])
 
@@ -18,6 +19,22 @@ def send_mail(from_email, from_name, subject, template, variables={}):
     print msg
 
 
-def process_template():
-    s = Template('$who likes $what')
-    s.substitute(who='tim', what='kung pao')
+def process_template(name, variables):
+    html = file_get_contents('/home/aureliosaraiva/projetos/livrio/api/mail/templates/{}.html'.format(name))
+    print html.encode('utf-8')
+    text = file_get_contents('/home/aureliosaraiva/projetos/livrio/api/mail/templates/{}.txt'.format(name))
+    s = Template(html)
+    html = s.render(variables)
+
+    s = Template(text)
+    text = s.render(variables)
+
+    return {
+        'html': html,
+        'text': text
+    }
+
+
+def mail_signup(account_id):
+    print process_template('signup',{'name':'Aurélio'})
+    print "mail_signup"

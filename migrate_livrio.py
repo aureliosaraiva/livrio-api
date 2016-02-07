@@ -9,11 +9,11 @@ from util import token
 from bson import json_util
 from bson.objectid import ObjectId
 
-DATABASE = {'host': 'mysql01.codeway.in', 'user': 'CodeWay_Livrio', 'pass': 'vqtIeyYfohR7fjE4', 'base': 'CodeWay_Livrio'}
+DATABASE = {'host': 'mysql01.codeway.com.br', 'user': 'CodeWay_Livrio', 'pass': 'vqtIeyYfohR7fjE4', 'base': 'CodeWay_Livrio'}
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-MONGO_DB = "mongodb://db.codeway.in:27017"
+MONGO_DB = "mongodb://db.codeway.com.br:27017"
 
 db = MySQLdb.connect(host=DATABASE['host'],
                      user=DATABASE['user'],
@@ -67,6 +67,7 @@ def get_id(o,i):
 
 
 db.accounts.delete_many({})
+db.books.delete_many({})
 db.shelves.delete_many({})
 db.phone_contacts.delete_many({})
 db.events.delete_many({})
@@ -80,6 +81,7 @@ date_utc = datetime.utcnow().replace(microsecond=0)
 query = """SELECT * FROM sys_users"""
 conn.execute(query)
 result = conn.fetchall()
+print "sys_users"
 for row in result:
     payload = {
         '_created': to_datetime(row['registration']),
@@ -125,7 +127,7 @@ for row in result:
     db.accounts.insert_one(payload)
     set_id('user',row['id'],payload['_id'])
 
-
+print "sys_friends"
 query = """SELECT * FROM sys_friends"""
 conn.execute(query)
 result = conn.fetchall()
@@ -136,6 +138,7 @@ for row in result:
 
     db.accounts.update_one({'_id': get_id('user',row['id_user'])}, payload)
 
+print "sys_shelfs"
 query = """SELECT * FROM sys_shelfs"""
 conn.execute(query)
 result = conn.fetchall()
@@ -155,6 +158,7 @@ for row in result:
     set_id('shelf',row['id'],payload['_id'])
 
 
+print "sys_books"
 query = """SELECT * FROM sys_books"""
 conn.execute(query)
 result = conn.fetchall()
@@ -180,6 +184,7 @@ for row in result:
     db.books.insert_one(payload)
     set_id('book',row['id'],payload['_id'])
 
+print "sys_book_shelfs"
 query = """SELECT * FROM sys_book_shelfs"""
 conn.execute(query)
 result = conn.fetchall()
@@ -191,6 +196,7 @@ for row in result:
     db.books.update_one({'_id': get_id('book',row['id_book'])}, payload)
 
 
+print "sys_book_likes"
 query = """SELECT * FROM sys_book_likes"""
 conn.execute(query)
 result = conn.fetchall()
@@ -208,6 +214,8 @@ for row in result:
             '_created': to_datetime(row['registration'])
     })
 
+
+print "sys_book_comments"
 query = """SELECT * FROM sys_book_comments"""
 conn.execute(query)
 result = conn.fetchall()
@@ -229,6 +237,7 @@ for row in result:
     db.books.update_one({'_id': get_id('book',row['id_book'])}, payload)
 
 
+print "sys_contacts_phone"
 query = """SELECT * FROM sys_contacts_phone"""
 conn.execute(query)
 result = conn.fetchall()
@@ -268,6 +277,7 @@ for row in result:
     db.phone_contacts.update_one(lookup,payload, upsert=True)
 
 
+print "sys_history"
 query = """SELECT * FROM sys_history"""
 conn.execute(query)
 result = conn.fetchall()
@@ -288,17 +298,19 @@ for row in result:
         })
 
 
+print "sys_history_location"
 query = """SELECT * FROM sys_history_location"""
 conn.execute(query)
 result = conn.fetchall()
 for row in result:
-    db.accounts_locationsc.insert_one({
+    db.accounts_locations.insert_one({
             'latitude': row['latitude'],
             'longitude': row['longitude'],
             'account_id': get_id('user',row['id_created_by']),
             '_created': to_datetime(row['registration'])
     })
 
+print "sys_history_search"
 query = """SELECT * FROM sys_history_search"""
 conn.execute(query)
 result = conn.fetchall()
@@ -310,6 +322,7 @@ for row in result:
             '_created': to_datetime(row['registration'])
     })
 
+print "sys_isbns_not_found"
 query = """SELECT * FROM sys_isbns_not_found"""
 conn.execute(query)
 result = conn.fetchall()
