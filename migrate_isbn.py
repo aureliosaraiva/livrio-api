@@ -101,7 +101,7 @@ for i in range(0, page):
             'publisher': row['publisher'],
             'publishedDate': row['published_year'],
             'categories': [row['category']],
-            'origin': {'name':row['origin'],'id':item['id']}
+            'origin': {'name':row['origin']}
         }
 
         payload = remove_empty_from_dict(payload)
