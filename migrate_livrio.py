@@ -53,9 +53,9 @@ def to_str(s):
 
 def remove_empty_from_dict(d):
     if type(d) is dict:
-        return dict((k, remove_empty_from_dict(v)) for k, v in d.iteritems() if v and remove_empty_from_dict(v))
+        return dict((k, remove_empty_from_dict(v)) for k, v in d.iteritems()  if type(v) is bool or (v and remove_empty_from_dict(v)))
     elif type(d) is list:
-        return [remove_empty_from_dict(v) for v in d if v and remove_empty_from_dict(v)]
+        return [remove_empty_from_dict(v) for v in d  if type(v) is bool or (v and remove_empty_from_dict(v))]
     else:
         return d
 
@@ -235,3 +235,100 @@ for row in result:
     }
 
     db.books.update_one({'_id': get_id('book',row['id_book'])}, payload)
+
+
+print "sys_contacts_phone"
+query = """SELECT * FROM sys_contacts_phone"""
+conn.execute(query)
+result = conn.fetchall()
+for row in result:
+
+    item = decode_json(row['raw_contact'])
+    lookup = {'account_id': get_id('user',row['id_created_by']), 'contact_id': item['id']}
+
+    payload_data = {
+        '_created': to_datetime(row['registration']),
+        '_updated': to_datetime(row['updated']),
+        'source': item
+    }
+
+    emails = []
+    if item['emails']:
+        for e in item['emails']:
+            if e['value'].find('@'):
+                emails.append(e['value'])
+        payload_data['emails'] = emails
+
+    phones = []
+    if item['phoneNumbers']:
+        for e in item['phoneNumbers']:
+            if len(e['value']) >=8 :
+                phones.append(e['value'])
+        payload_data['phones'] = emails
+
+    if item['displayName']:
+        payload_data['fullname'] = item['displayName']
+
+    payload_data = remove_empty_from_dict(payload_data)
+    payload = {
+        '$set': payload_data
+    }
+
+    db.phone_contacts.update_one(lookup,payload, upsert=True)
+
+
+print "sys_history"
+query = """SELECT * FROM sys_history"""
+conn.execute(query)
+result = conn.fetchall()
+for row in result:
+    if row['type'] == 'book':
+        db.events.insert_one({
+                'book_id': get_id('book',row['entity']),
+                'book_view': True,
+                'account_id': get_id('user',row['id_created_by']),
+                '_created': to_datetime(row['registration'])
+        })
+    elif row['type'] == 'friend':
+        db.events.insert_one({
+                'friend_id': get_id('user',row['entity']),
+                'friend_view': True,
+                'account_id': get_id('user',row['id_created_by']),
+                '_created': to_datetime(row['registration'])
+        })
+
+
+print "sys_history_location"
+query = """SELECT * FROM sys_history_location"""
+conn.execute(query)
+result = conn.fetchall()
+for row in result:
+    db.accounts_locations.insert_one({
+            'latitude': row['latitude'],
+            'longitude': row['longitude'],
+            'account_id': get_id('user',row['id_created_by']),
+            '_created': to_datetime(row['registration'])
+    })
+
+print "sys_history_search"
+query = """SELECT * FROM sys_history_search"""
+conn.execute(query)
+result = conn.fetchall()
+for row in result:
+    db.history_search.insert_one({
+            'search': row['word'],
+            'count_found': row['count_found'],
+            'account_id': get_id('user',row['id_created_by']),
+            '_created': to_datetime(row['registration'])
+    })
+
+print "sys_isbns_not_found"
+query = """SELECT * FROM sys_isbns_not_found"""
+conn.execute(query)
+result = conn.fetchall()
+for row in result:
+    db.isbn_not_founds.insert_one({
+            'isbn': row['isbn'],
+            '_created': to_datetime(row['registration'])
+    })
+
