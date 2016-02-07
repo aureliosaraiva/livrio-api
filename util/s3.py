@@ -6,6 +6,7 @@ import urllib2
 import boto
 import cStringIO
 from boto.s3.key import Key
+from settings import AWS
 
 def to_url(bucket, key):
     return 'https://s3-sa-east-1.amazonaws.com/'+ str(bucket) +'/' + str(key)
@@ -22,7 +23,7 @@ def download_file_from_url(url):
         'length': int(info.getheader('Content-Length'))
     }
 
-def upload_from_file(filename, key, bucket='livrio',callback=None, md5=None, reduced_redundancy=False, content_type=None):
+def upload_from_file(filename, key, bucket='livrio-static',callback=None, md5=None, reduced_redundancy=False, content_type=None):
     file =open(filename,'r')
     try:
         size = os.fstat(file.fileno()).st_size
@@ -30,7 +31,7 @@ def upload_from_file(filename, key, bucket='livrio',callback=None, md5=None, red
         file.seek(0, os.SEEK_END)
         size = file.tell()
 
-    conn = boto.connect_s3()
+    conn = boto.connect_s3(aws_access_key_id=AWS['AWS_ACCESS_KEY_ID'], aws_secret_access_key=AWS['AWS_SECRET_ACCESS_KEY'])
     bucket = conn.get_bucket(bucket, validate=True)
     k = Key(bucket)
     k.key = key
@@ -43,14 +44,14 @@ def upload_from_file(filename, key, bucket='livrio',callback=None, md5=None, red
     file.seek(0)
 
     if sent == size:
-        return to_url('livrio', key)
+        return to_url('livrio-static', key)
     return False
 
-def upload_from_url(url, key, bucket='livrio',callback=None, md5=None, reduced_redundancy=False, content_type=None):
+def upload_from_url(url, key, bucket='livrio-static',callback=None, md5=None, reduced_redundancy=False, content_type=None):
 
     file = download_file_from_url(url)
 
-    conn = boto.connect_s3()
+    conn = boto.connect_s3(aws_access_key_id=AWS['AWS_ACCESS_KEY_ID'], aws_secret_access_key=AWS['AWS_SECRET_ACCESS_KEY'])
     bucket = conn.get_bucket(bucket, validate=True)
     k = Key(bucket)
     k.key = key
@@ -61,13 +62,13 @@ def upload_from_url(url, key, bucket='livrio',callback=None, md5=None, reduced_r
 
 
     if sent == file['length']:
-        return to_url('livrio', key)
+        return to_url('livrio-static', key)
     return False
 
-def upload_from_string(file, key, bucket='livrio',content_type=None, callback=None, md5=None, reduced_redundancy=False):
+def upload_from_string(file, key, bucket='livrio-static',content_type=None, callback=None, md5=None, reduced_redundancy=False):
 
 
-    conn = boto.connect_s3()
+    conn = boto.connect_s3(aws_access_key_id=AWS['AWS_ACCESS_KEY_ID'], aws_secret_access_key=AWS['AWS_SECRET_ACCESS_KEY'])
     bucket = conn.get_bucket(bucket, validate=True)
     k = Key(bucket)
     k.key = key
@@ -80,5 +81,5 @@ def upload_from_string(file, key, bucket='livrio',content_type=None, callback=No
 
 
     # if sent == file['length']:
-    return to_url('livrio', key)
+    return to_url('livrio-static', key)
     # return False
