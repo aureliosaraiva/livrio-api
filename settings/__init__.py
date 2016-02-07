@@ -12,12 +12,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
 # Task Broker
-RABBITMQ_HOST = 'localhost'
-RABBITMQ_USER = 'guest'
-RABBITMQ_PASSWORD = 'guest'
 
 BROKER_HEARTBEAT = 0
-BROKER_URL = "amqp://"
+BROKER_URL = "amqp://checkmailing:aZPRcBRMWm@queue.codeway.in:5672/checkmailing"
 CELERY_RESULT_BACKEND = "amqp://"
 CELERY_TASK_RESULT_EXPIRES = 1
 CELERY_ACCEPT_CONTENT = ['pickle']
@@ -40,7 +37,6 @@ CELERYD_CONCURRENCY = 8
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-MONGO_DB = "mongodb://localhost:4321"
 
 AWS = {
     'AWS_ACCESS_KEY_ID': 'AKIAIBMTRNWUF2TRMYVA',
@@ -59,7 +55,7 @@ PUSH = {
 EVE_SETTINGS_APP = {
     'WTF_CSRF_ENABLED':True,
     'SECRET_KEY':'you-will-never-guess',
-    'MONGO_HOST': 'localhost',
+    'MONGO_HOST': 'db.codeway.com.br',
     'MONGO_PORT': 27017,
     'MONGO_DBNAME': 'livrio',
     'DEBUG': True,
