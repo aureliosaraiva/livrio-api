@@ -79,7 +79,7 @@ conn.execute(query)
 result = conn.fetchone()
 
 total = result['total']
-page = ceil(total/5000)
+page = int(ceil(total/5000))
 
 for i in range(0, page):
     query = "SELECT * FROM sys_isbns limit {},5000".format(i*5000)
