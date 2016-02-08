@@ -4,16 +4,46 @@ from datetime import datetime
 from tasks import book_like
 from bson.objectid import ObjectId
 
+TYPE = {
+    'SYSTEM_WELCOME':'system_welcome',
+    'SYSTEM_FIRST_BOOK':'system_first_book',
+    'SYSTEM_LIBRARY_EMPTY':'system_library_empty',
+    'INFO_TEXT':'info_text',
+    'SYSTEM_UPDATE':'system_updated',
+    'FRIEND':'friend',
+    'FRIEND_LIKE_BOOK':'friend_like_book',
+    'FRIEND_RECOMMEND_BOOK':'friend_recommend_book',
+    'REQUEST_FRIEND':'request_friend',
+    'LOAN_REQUEST':'loan_request',
+    'LOAN_CONFIRM':'loan_confirm',
+    'LOAN_CONFIRM_YES':'loan_confirm_yes',
+    'LOAN_CONFIRM_NO':'loan_confirm_no',
+    'LOAN_RETURN':'loan_return',
+    'LOAN_RETURN_CONFIRM':'loan_return_confirm',
+    'LOAN_REQUEST_RETURN':'loan_request_return',
+    'LOAN_SENT_CANCELED':'loan_sent_canceled',
+    'LOAN_SENT_REFUSED':'loan_sent_refused',
+    'BOOK_LOAN_RETURN':'book_loan_return',
+    'BOOK_LOAN_RETURN_DAY':'book_loan_return_day',
+    'BOOK_LOAN_LATE':'book_loan_late'
+}
+
+
 def notification_get(account_id):
 
     lookup = {'account_id': account_id}
-    print lookup
     notifications = app.data.driver.db['notifications']
 
     cursor = notifications.find(lookup).sort([('_created', -1 )]).limit(20)
 
     d = []
     for document in cursor:
+        if not 'from' in document:
+            document['from'] = account_info(document['from_id'])
+
+        if not 'book' in document and 'book_id' in document:
+            document['book'] = book_info(document['book_id'])
+
         d.append(document)
 
     return d

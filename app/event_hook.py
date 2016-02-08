@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from util import token
-from tasks import send_email
 import json
 from flask import request, current_app as app, g, abort
 from model import book

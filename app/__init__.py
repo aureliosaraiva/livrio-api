@@ -4,7 +4,7 @@ from flask import request, abort, Response
 from .auth import TokenAuth, route_require_auth
 from .event_hook import  evt_create_token, evt_create_account, evt_book_get_result
 from settings import EVE_SETTINGS_APP
-from model import book, notification, friend, contact, account
+from model import book, notification, friend, contact, account, loan
 import json
 from bson.objectid import ObjectId
 
@@ -37,6 +37,31 @@ def route_auth():
         abort(401, description='Email or password invalid')
 
     data['_status'] = 'OK'
+
+    return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+
+@app.route('/v1/books/<book_id>/loan/old',methods=['POST'])
+def route_book_loan_old(book_id):
+    route_require_auth()
+    account_id = app.auth.get_request_auth_value()
+
+    loan.start_loan(account_id, ObjectId(book_id), ObjectId(request.json['friend_id']), request.json)
+    data = {
+        '_status': 'OK'
+    }
+
+    return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route('/v1/books/<book_id>/loan/status/old',methods=['POST'])
+def route_book_loan_status_old(book_id):
+    route_require_auth()
+    account_id = app.auth.get_request_auth_value()
+
+    loan.change_status(account_id, ObjectId(book_id), request.json)
+    data = {
+        '_status': 'OK'
+    }
 
     return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
@@ -361,6 +386,8 @@ def route_notifications_view():
         '_status': 'OK'
     }
     return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+
 
 
 

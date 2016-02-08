@@ -1,1 +1,17 @@
-Ol {{name}}! $link
+Olá {{first_name}}, seja bem vindo ao Livrio!
+
+Que bom que você quer compartilhar livros com quem também ama livros.
+
+Agora que você já está cadastrado, vai ficar muito mais fácil emprestá-los.
+
+Explore pelo aplicativo a biblioteca dos seus amigos, encontre livros que merecem ser lidos e peça emprestado para que eles não fiquem parados na estante.
+
+Cadastre seus livros incríveis com um toque e empreste com mais segurança, sabendo com quem eles estão e quando eles voltam. Livr.io avisa a hora da devolução e te ajuda a manter a amizade.
+
+E o melhor: sem pagar nada por isso.
+
+Não gaste dinheiro para ler o que você procura. Livros compartilhados são mais amados.
+
+Ah, importante: fique à vontade para nos dar feedbacks, queremos construir uma experiência incrível e precisamos da sua ajuda!
+
+Obrigada por compartilhar os livros que você ama.

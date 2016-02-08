@@ -14,21 +14,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # Task Broker
 
 BROKER_HEARTBEAT = 0
-BROKER_URL = "amqp://checkmailing:aZPRcBRMWm@queue.codeway.in:5672/checkmailing"
+BROKER_URL = "amqp://livrio:trQDB8NrQrzVRBSa@queue.codeway.in:5672/livrio"
 CELERY_RESULT_BACKEND = "amqp://"
 CELERY_TASK_RESULT_EXPIRES = 1
 CELERY_ACCEPT_CONTENT = ['pickle']
 CELERY_IMPORTS = (
-    'tasks.check_syntax',
-    'tasks.check_local',
-    'tasks.check_domain',
-    'tasks.check_tld',
-    'tasks.check_mx',
-    'tasks.insert_db',
-    'tasks.make_csv',
-    'tasks.check_file',
-    'tasks.webhook',
-    'tasks.download_file'
+    'tasks.send_mail',
+    'tasks.send_push'
 
 )
 CELERYD_CONCURRENCY = 8
@@ -52,10 +44,12 @@ PUSH = {
     'GCM': 'AIzaSyCbBO_cyYLTpUm3VOWx7RazZAo6kxnpoq0'
 }
 
+MONGO_DB = "mongodb://localhost:27017"
+
 EVE_SETTINGS_APP = {
     'WTF_CSRF_ENABLED':True,
     'SECRET_KEY':'you-will-never-guess',
-    'MONGO_HOST': 'db.codeway.com.br',
+    'MONGO_HOST': 'db.codeway.in',
     'MONGO_PORT': 27017,
     'MONGO_DBNAME': 'livrio',
     'DEBUG': True,
@@ -233,3 +227,6 @@ EVE_SETTINGS_ISBN = {
 }
 
 
+## MONGODB CONNECTION
+mongo_client = MongoClient(MONGO_DB)
+db = mongo_client.livrio

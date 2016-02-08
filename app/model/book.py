@@ -6,6 +6,7 @@ import account
 from util import s3
 import base64
 import notification
+import loan
 
 def get_by_isbn(account_id, isbn):
     db = app.data.driver.db['books']
@@ -47,7 +48,7 @@ def save(account_id, data, book_id=None):
     db = app.data.driver.db['books']
     date_utc = datetime.utcnow().replace(microsecond=0)
 
-    if 'isbn' in data:
+    if 'isbn' in data and not book_id:
         book_id = get_by_isbn(account_id, data['isbn'])
 
     if not book_id:
@@ -79,7 +80,7 @@ def save(account_id, data, book_id=None):
             '_updated': date_utc,
             '_deleted': False
         }
-
+        
         accept = ['title','isbn','publisher', 'published_date','authors','description','page_count','shelves','draft','subtitle']
         for i in accept:
             if i in data:
@@ -150,7 +151,7 @@ def book_search(account_id, params=None, friend_id=None):
     lookup['_deleted'] = False
 
     db = app.data.driver.db['books']
-    cursor = db.find(lookup,{ 'title':1,'authors':1,'account_id':1,'cover':1,'shelves':1,'isbn':1,'page_count':1,'published_date':1,'publisher':1,'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
+    cursor = db.find(lookup,{ 'title':1,'authors':1,'account_id':1,'cover':1,'shelves':1,'isbn':1,'page_count':1,'published_date':1,'publisher':1,'loaned':1,'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
 
     limit = 25
     offset = 0
@@ -283,10 +284,12 @@ def book_info(account_id, book_id):
         'authors':1,
         'publisher':1,
         'account_id': 1,
+        'loan_id': 1,
         'page_count':1,
         'published_date':1,
         'description':1,
         'shelves': 1,
+        'loaned': 1,
         'likes':1
     })
 
@@ -294,7 +297,7 @@ def book_info(account_id, book_id):
         doc['cover'] = 'img/cover.gif'
 
 
-    doc['owner'] = account.account_info_basic(doc['account_id'])
+    doc['owner'] = account.account_info_basic(doc['account_id'], friend_id=account_id)
 
     if 'likes' in doc and account_id in doc['likes']:
         del doc['likes']
@@ -303,6 +306,10 @@ def book_info(account_id, book_id):
     if account_id == doc['account_id']:
         doc['is_owner'] = True
         del doc['account_id']
+
+    #if 'loan_id' in doc:
+    #    doc['loaned'] = loan.get_info_old(account_id, doc['loan_id'])
+
 
     
 

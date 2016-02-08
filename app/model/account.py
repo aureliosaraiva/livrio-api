@@ -215,7 +215,7 @@ def account_info(account_id):
     return doc
 
 
-def account_info_basic(account_id, multi=False):
+def account_info_basic(account_id, multi=False, friend_id=None):
     db = app.data.driver.db['accounts']
     if multi:
         lookup = {'_id':{'$in':account_id}}
@@ -230,7 +230,12 @@ def account_info_basic(account_id, multi=False):
 
     lookup = {'_id':account_id}
 
-    doc = db.find_one(lookup,{'fullname':1,'first_name':1,'last_name':1,'photo':1})
+    doc = db.find_one(lookup,{'fullname':1,'first_name':1,'last_name':1,'photo':1,'friends_list':1})
+
+    if 'friends_list' in doc and friend_id in doc['friends_list']:
+        doc['is_friend'] = True
+    
+    del doc['friends_list']
 
     if not 'photo' in doc:
         doc['photo'] = 'img/avatar.png'

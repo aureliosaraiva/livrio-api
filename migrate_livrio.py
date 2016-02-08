@@ -11,10 +11,11 @@ from bson.objectid import ObjectId
 from math  import ceil
 
 DATABASE = {'host': 'mysql01.codeway.com.br', 'user': 'CodeWay_Livrio', 'pass': 'vqtIeyYfohR7fjE4', 'base': 'CodeWay_Livrio'}
+DATABASE = {'host': 'localhost', 'user': 'root', 'pass': '', 'base': 'CodeWay_Livrio'}
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-MONGO_DB = "mongodb://db.codeway.com.br:27017"
+MONGO_DB = "mongodb://db.codeway.in:27017"
 
 db = MySQLdb.connect(host=DATABASE['host'],
                      user=DATABASE['user'],
@@ -185,6 +186,40 @@ for row in result:
     db.books.insert_one(payload)
     set_id('book',row['id'],payload['_id'])
 
+    if row['id_loan']:
+        query_tmp = "SELECT * FROM sys_book_loans WHERE id = {} ".format(str(row['id_loan']))
+        conn.execute(query_tmp)
+        line = conn.fetchone()
+
+        payload_loan = {
+            '_created': to_datetime(line['registration']),
+            '_updated':to_datetime(line['registration']),
+            '_deleted': False,
+            'book_id': get_id('book',line['id_book']),
+            'owner_id': get_id('user',row['id_created_by']),
+            'friend_id': get_id('user',line['id_loaned']),
+            'type': 'requested',
+            'status': line['status'],
+            'duration': line['expire_loaned'],
+            'old_text': line['reason_cancel']
+        }
+
+        db.books_loans.insert_one(payload_loan)
+
+        db.books.update_one({'_id':payload['_id']},{
+            '$set': {
+                'loaned': {
+                    'status': line['status'],
+                    'id_loan': payload_loan['_id'],
+                    'duration': payload_loan['duration'],
+                    'friend_id': get_id('user',line['id_loaned'])
+                }
+            }    
+        })
+
+
+
+
 print "sys_book_shelfs"
 query = """SELECT * FROM sys_book_shelfs"""
 conn.execute(query)
@@ -298,6 +333,30 @@ for row in result:
     })
 
 
+
+print "sys_notifications"
+query = """SELECT * FROM sys_notifications"""
+conn.execute(query)
+result = conn.fetchall()
+for row in result:
+    
+    payload = {
+        '_created': to_datetime(row['registration']),
+        '_updated': to_datetime(row['updated']),
+        '_deleted': False,
+        'view': row['view']==1,
+        'read': row['read']==1,
+        'account_id': get_id('user',row['id_created_by']),
+        'from_id': get_id('user',row['id_user']),
+        'type': row['type'],
+        'content': decode_json(row['content'])
+    }
+
+    if row['id_book']:
+        payload['book_id'] = get_id('book',row['id_book'])
+
+    payload = remove_empty_from_dict(payload)
+    db.notifications.insert_one(payload)
 
 
 print "sys_contacts_phone"
