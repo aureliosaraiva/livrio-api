@@ -1,5 +1,6 @@
 import os
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -25,6 +26,14 @@ CELERY_IMPORTS = (
 )
 CELERYD_CONCURRENCY = 8
 
+DEBUG = True
+DEBUG_CONFIG = {
+    'email': 'aurelio+debug@codeway.com.br',
+    'platform': 'android',
+    'token': 'drtAhphyTsw:APA91bGZHNIfXFTQfFx86poUni3CbDdyKNUbkbYvAWoURdHJF4VrQgxw7dWAnBYpjT75XPIAF4XttqLOrulccAzyGP1N-tfrbl_dM158w_fuXlrPvEUkaGK8eI8lzFOaPTWjiKQ00tX3'
+}
+
+PRIMARY_ACCOUNT = ObjectId("56b8df25f387bc33fe9790d5")
 
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379

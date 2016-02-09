@@ -202,6 +202,13 @@ def book_like(account_id, book_id, unlike=False):
 
         books.update_one(lookup, {'$addToSet':{'likes': account_id}}, upsert=False)
 
+        # Notificação
+        notification.notify(
+            account_id=account_id, 
+            friend_id=book['account_id'], 
+            book_id=book_id, 
+            group=notification.TYPE['FRIEND_LIKE_BOOK'])
+
         
     elif unlike and 'likes' in book and account_id in book['likes']:
         date_utc = datetime.utcnow().replace(microsecond=0)
@@ -317,5 +324,8 @@ def book_info(account_id, book_id):
     return doc
 
 def book_recommend(account_id, friend_id, book_id):
-    print 'book_recommend'
-    notification.notify_recommend_book(account_id, friend_id, book_id)
+    notification.notify(
+        account_id=account_id, 
+        friend_id=friend_id, 
+        book_id=book_id, 
+        group=notification.TYPE['FRIEND_RECOMMEND_BOOK'])

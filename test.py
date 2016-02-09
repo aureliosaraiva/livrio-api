@@ -18,7 +18,7 @@ from bson.objectid import ObjectId
 
 # p.account_id(ObjectId("56b8df25f387bc33fe9790d5"))
 # p.message('Atualize seu aplicativo')
-
+{"platform":"android","token":"drtAhphyTsw:APA91bGZHNIfXFTQfFx86poUni3CbDdyKNUbkbYvAWoURdHJF4VrQgxw7dWAnBYpjT75XPIAF4XttqLOrulccAzyGP1N-tfrbl_dM158w_fuXlrPvEUkaGK8eI8lzFOaPTWjiKQ00tX3"}
 
 # p.send()
 

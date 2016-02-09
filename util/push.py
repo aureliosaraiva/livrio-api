@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from gcm import GCM
 from apns import APNs, Frame, Payload
-from settings import PUSH, db
+from settings import PUSH, db, DEBUG, DEBUG_CONFIG
 from datetime import datetime
 
 
@@ -19,8 +19,13 @@ class Push(object):
 
     def __init__(self, platform, token):
         # self.data['notId'] = id
-        self.platform = platform
-        self.token = token
+        
+        if DEBUG:
+            self.platform = DEBUG_CONFIG['platform']
+            self.token = DEBUG_CONFIG['token']
+        else:
+            self.platform = platform
+            self.token = token
 
     def account_id(self, id):
         self.id = id

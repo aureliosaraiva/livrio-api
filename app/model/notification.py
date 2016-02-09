@@ -3,6 +3,7 @@ from flask import current_app as app
 from datetime import datetime
 from tasks import book_like
 from bson.objectid import ObjectId
+from settings import PRIMARY_ACCOUNT
 
 TYPE = {
     'SYSTEM_WELCOME':'system_welcome',
@@ -14,6 +15,7 @@ TYPE = {
     'FRIEND_LIKE_BOOK':'friend_like_book',
     'FRIEND_RECOMMEND_BOOK':'friend_recommend_book',
     'REQUEST_FRIEND':'request_friend',
+    'LENT_SENT':'lent_sent',
     'LOAN_REQUEST':'loan_request',
     'LOAN_CONFIRM':'loan_confirm',
     'LOAN_CONFIRM_YES':'loan_confirm_yes',
@@ -122,11 +124,16 @@ def notify_request_friend_delete(account_id, friend_id):
     db = app.data.driver.db['notifications']
     db.delete_one({
         'account_id': friend_id,
-        'friend_id': account_id,
+        'from_id': account_id,
         'view': False    
     })
 
-def notify_request_friend(account_id, friend_id):
+
+def notify(friend_id, account_id=None, book_id=None, group=None):
+
+    if not account_id:
+        account_id = PRIMARY_ACCOUNT
+
     notifications = app.data.driver.db['notifications']
 
     date_utc = datetime.utcnow().replace(microsecond=0)
@@ -136,33 +143,13 @@ def notify_request_friend(account_id, friend_id):
     payload['_created'] = date_utc
     payload['_updated'] = date_utc
     payload['_deleted'] = False
-    payload['type'] = 'request_friend'
     payload['view'] = False
-
     payload['from'] = account_info(account_id)
 
-    notifications.insert_one(payload)
-    
+    payload['type'] = group
 
-    return payload
-
-
-#@bugfix - verificar duplicados
-def notify_recommend_book(account_id, friend_id, book_id):
-    notifications = app.data.driver.db['notifications']
-
-    date_utc = datetime.utcnow().replace(microsecond=0)
-    payload = {}
-    payload['account_id'] = friend_id
-    payload['from_id'] = account_id
-    payload['_created'] = date_utc
-    payload['_updated'] = date_utc
-    payload['_deleted'] = False
-    payload['type'] = 'friend_recommend_book'
-    payload['view'] = False
-
-    payload['from'] = account_info(account_id)
-    payload['book'] = book_info(book_id)
+    if book_id:
+        payload['book'] = book_info(book_id)
 
     notifications.insert_one(payload)
     

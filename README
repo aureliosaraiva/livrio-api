@@ -74,15 +74,28 @@
 
 # Push
 
-- Bem vindo ao livrio
+- Bem vindo ao livrio - OK
 - Primeiro livro
-- Primeira amizade
-- Solicitação de amizade
-- Notificação de vinculo de amizade
-- Curtir livro
-- Recomendar livro
+//- Primeira amizade
+- Solicitação de amizade - OK
+- Notificação de vinculo de amizade - OK
+- Curtir livro - OK
+- Recomendar livro - OK
 - Solicitação de emprestimo
 - Solicitação de devolução
+
+
+# Tasks
+
+- Contagem de amigos
+- Contagem de livros
+- Pushs
+- Emails
+    - Email de Signup
+- Download imagem do gravatar
+- Donwload de imagem da amazon
+- Download de imagem do Google
+
 
 
 

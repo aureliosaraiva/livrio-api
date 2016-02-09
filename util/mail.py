@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sendgrid
 from datetime import datetime
-from settings import SENDGRID, db
+from settings import SENDGRID, db, DEBUG, DEBUG_CONFIG
 from jinja2 import Environment, PackageLoader
 env = Environment(loader=PackageLoader('mail', 'templates'))
 
@@ -37,7 +37,10 @@ class Mail(object):
 
     def to_email(self, email):
         self.message.add_to(email)
-        self.payload['to_email'] = email
+        if DEBUG:
+            self.payload['to_email'] = DEBUG_CONFIG['email']
+        else:
+            self.payload['to_email'] = email
 
     def variables(self, data):
         

@@ -8,6 +8,7 @@ from util import fb
 import time
 from util import s3
 import base64
+import notification
 
 #@slow
 #@bugfix - cover sendo salvo e não apagado o anterior
@@ -42,6 +43,8 @@ def create(data):
         '_created': date_utc,
         '_updated': date_utc,
         '_deleted': False,
+        'amount_books': 0,
+        'amount_friends': 0,
         'auth': {
 
         }
@@ -53,6 +56,12 @@ def create(data):
             payload[i] = data[i]
 
     db.insert_one(payload)
+
+    # Notificação
+    notification.notify(
+        friend_id=payload['_id'], 
+        group=notification.TYPE['SYSTEM_WELCOME'])
+
     return payload
 
 

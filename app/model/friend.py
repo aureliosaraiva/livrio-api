@@ -81,7 +81,12 @@ def friend_invite(account_id, friend_id):
     }
 
     db.update_one({'_id': friend_id},payload)
-    notification.notify_request_friend(account_id, friend_id)
+
+    # Notificação
+    notification.notify(
+        account_id=account_id, 
+        friend_id=friend_id,
+        group=notification.TYPE['REQUEST_FRIEND'])
 
 #@task registrar na tabela de eventos a data do aceite
 #@task enviar push e email informando que o usuário aceitou o convite
@@ -138,6 +143,12 @@ def friend_invite_accept(account_id, friend_id):
     lookup = { '_id': friend_id }
     payload = { '$addToSet':{'friends_list': account_id},'$pull':{'invited_friends':{'account_id':account_id}}}
     db.update_one(lookup,payload)
+
+    # Notificação
+    notification.notify(
+        account_id=account_id, 
+        friend_id=friend_id, 
+        group=notification.TYPE['FRIEND'])
 
 #@task registrar na tabela de eventos a data do aceite
 #@task enviar push e email informando que o usuário aceitou o convite
