@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from flask import current_app as app
+from settings import db
 from datetime import datetime
 from bson.objectid import ObjectId
 
 def contact_save(account_id, data):
-    db = app.data.driver.db['phone_contacts']
+    
+
 
     date_utc = datetime.utcnow().replace(microsecond=0)
 
@@ -37,10 +38,10 @@ def contact_save(account_id, data):
             '$set': payload_data
         }
 
-        db.update_one(lookup,payload, upsert=True)
+        db.phone_contacts.update_one(lookup,payload, upsert=True)
 
 def contact_get(account_id, params):
-    db = app.data.driver.db['phone_contacts']
+
 
     lookup = {
         'account_id': account_id,
@@ -52,7 +53,7 @@ def contact_get(account_id, params):
             lookup["$text"] = { '$search': params['search'] }
 
     print lookup
-    cursor = db.find(lookup,{ 'fullname':1,'invited':1,'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
+    cursor = db.phone_contacts.find(lookup,{ 'fullname':1,'invited':1,'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
 
     limit = 25
     offset = 0
@@ -77,9 +78,8 @@ def contact_get(account_id, params):
 
 #@bugfix enviar email aqui
 def contact_invite(account_id, contact_id):
-    db = app.data.driver.db['phone_contacts']
     lookup = {'_id': contact_id,'account_id':account_id}
-    doc = db.find_one(lookup);
+    doc = db.phone_contacts.find_one(lookup);
 
     if not doc:
         return None
@@ -92,4 +92,4 @@ def contact_invite(account_id, contact_id):
             'invited_at': date_utc
         }
     }
-    db.update(lookup,payload)
+    db.phone_contacts.update(lookup,payload)

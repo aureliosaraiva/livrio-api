@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import current_app as app
+from settings import db
 from datetime import datetime
 from bson.objectid import ObjectId
 import notification
@@ -13,9 +13,10 @@ def friend(account_id, friend_id):
         '_id': friend_id
     }
 
-    db = app.data.driver.db['accounts']
 
-    doc = db.find_one(lookup,{'fullname':1,'photo':1,'cover':1,'first_name':1,'last_name':1,'location':1,'friends_list':1,'invited_friends':1})
+
+
+    doc = db.accounts.find_one(lookup,{'fullname':1,'photo':1,'cover':1,'first_name':1,'last_name':1,'location':1,'friends_list':1,'invited_friends':1})
 
     if 'friends_list' in doc and account_id in doc['friends_list']:
         doc['is_friend'] = True
@@ -52,9 +53,8 @@ def friend_invite(account_id, friend_id):
         "invited_friends.account_id": { '$ne': friend_id }
     }
 
-    db = app.data.driver.db['accounts']
 
-    doc = db.find_one(lookup)
+    doc = db.accounts.find_one(lookup)
 
     if not doc:
         return None
@@ -69,7 +69,7 @@ def friend_invite(account_id, friend_id):
         }
     }
 
-    db.update_one({'_id': account_id},payload)
+    db.accounts.update_one({'_id': account_id},payload)
 
     payload = {
         '$push':{
@@ -80,7 +80,7 @@ def friend_invite(account_id, friend_id):
         }
     }
 
-    db.update_one({'_id': friend_id},payload)
+    db.accounts.update_one({'_id': friend_id},payload)
 
     # Notificação
     notification.notify(
@@ -100,20 +100,19 @@ def friend_invite_delete(account_id, friend_id):
         "invited_friends.account_id":  friend_id 
     }
 
-    db = app.data.driver.db['accounts']
 
-    doc = db.find_one(lookup)
+    doc = db.accounts.find_one(lookup)
 
     if not doc:
         return None
 
     lookup = { '_id': friend_id }
     payload = {'$pull':{'invited_friends_pending':{'account_id':account_id}}}
-    db.update_one(lookup,payload)
+    db.accounts.update_one(lookup,payload)
 
     lookup = { '_id': account_id }
     payload = { '$pull':{'invited_friends':{'account_id':friend_id}}}
-    db.update_one(lookup,payload)
+    db.accounts.update_one(lookup,payload)
     notification.notify_request_friend_delete(account_id,friend_id)
 
 
@@ -129,20 +128,19 @@ def friend_invite_accept(account_id, friend_id):
         "invited_friends_pending.account_id":  friend_id 
     }
 
-    db = app.data.driver.db['accounts']
 
-    doc = db.find_one(lookup)
+    doc = db.accounts.find_one(lookup)
 
     if not doc:
         return None
 
     lookup = { '_id': account_id }
     payload = { '$addToSet':{'friends_list': friend_id},'$pull':{'invited_friends_pending':{'account_id':friend_id}}}
-    db.update_one(lookup,payload)
+    db.accounts.update_one(lookup,payload)
 
     lookup = { '_id': friend_id }
     payload = { '$addToSet':{'friends_list': account_id},'$pull':{'invited_friends':{'account_id':account_id}}}
-    db.update_one(lookup,payload)
+    db.accounts.update_one(lookup,payload)
 
     # Notificação
     notification.notify(
@@ -162,20 +160,18 @@ def friend_invite_cancel(account_id, friend_id):
         "invited_friends_pending.account_id":  friend_id 
     }
 
-    db = app.data.driver.db['accounts']
-
-    doc = db.find_one(lookup)
+    doc = db.accounts.find_one(lookup)
 
     if not doc:
         return None
 
     lookup = { '_id': account_id }
     payload = {'$pull':{'invited_friends_pending':{'account_id':friend_id}}}
-    db.update_one(lookup,payload)
+    db.accounts.update_one(lookup,payload)
 
     lookup = { '_id': friend_id }
     payload = { '$pull':{'invited_friends':{'account_id':account_id}}}
-    db.update_one(lookup,payload)
+    db.accounts.update_one(lookup,payload)
 
 
 
@@ -188,8 +184,8 @@ def friend_suggest(account_id, params=None):
         if 'search' in params:
             lookup["$text"] = { '$search': params['search'] }
 
-    db = app.data.driver.db['friend_suggests']
-    cursor = db.find(lookup,{ 'fullname':1,'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
+
+    cursor = db.friend_suggests.find(lookup,{ 'fullname':1,'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
 
     limit = 25
     offset = 0
@@ -223,8 +219,8 @@ def friend_search(account_id, params=None):
         if 'search' in params:
             lookup["$text"] = { '$search': params['search'] }
 
-    accounts = app.data.driver.db['accounts']
-    cursor = accounts.find(lookup,{ 'fullname':1, 'first_name':1, 'last_name':1,'photo':1, 'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
+
+    cursor = db.accounts.find(lookup,{ 'fullname':1, 'first_name':1, 'last_name':1,'photo':1, 'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
 
     limit = 25
     offset = 0
@@ -253,16 +249,12 @@ def friend_search(account_id, params=None):
 def friend_all(account_id, params=None):
     lookup = { '_id': account_id }
 
-    accounts = app.data.driver.db['accounts']
-    doc = accounts.find_one(lookup,{ 'friends_list':1})
-    print doc
-
+    doc = db.accounts.find_one(lookup,{ 'friends_list':1})
+    if not 'friends_list' in doc:
+        return []
+    
     lookup = { '_id': {'$in':doc['friends_list']} }
-
-    print lookup
-
-    accounts = app.data.driver.db['accounts']
-    cursor = accounts.find(lookup,{ 'fullname':1,'photo':1})
+    cursor = db.accounts.find(lookup,{ 'fullname':1,'photo':1})
 
     limit = 25
     offset = 0
@@ -288,7 +280,6 @@ def friend_all(account_id, params=None):
     return d
 
 def delete(account_id, friend_id):
-    db = app.data.driver.db['accounts']
 
-    db.update_one({'_id': account_id},{'$pull':{'friends_list':friend_id}})
-    db.update_one({'_id': friend_id},{'$pull':{'friends_list':account_id}})
+    db.accounts.update_one({'_id': account_id},{'$pull':{'friends_list':friend_id}})
+    db.accounts.update_one({'_id': friend_id},{'$pull':{'friends_list':account_id}})

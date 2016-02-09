@@ -21,6 +21,7 @@ CELERY_TASK_RESULT_EXPIRES = 1
 CELERY_ACCEPT_CONTENT = ['pickle']
 CELERY_IMPORTS = (
     'tasks.send_mail',
+    'tasks.location',
     'tasks.send_push'
 
 )

@@ -2,9 +2,8 @@
 from eve import Eve, render
 from flask import request, abort, Response
 from .auth import TokenAuth, route_require_auth
-from .event_hook import  evt_create_token, evt_create_account, evt_book_get_result
 from settings import EVE_SETTINGS_APP
-from model import book, notification, friend, contact, account, loan
+from models import book, notification, friend, contact, account, loan
 import json
 from bson.objectid import ObjectId
 
@@ -388,12 +387,5 @@ def route_notifications_view():
     return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
-
-
-
-app.on_insert_accounts += evt_create_token
-app.on_inserted_accounts += evt_create_account
-app.on_post_GET_books += evt_book_get_result
 if __name__ == '__main__':
     app.run()
-#http://127.0.0.1:5000/v1/books/569bc211f387bc20eb247d54/like?sdf

@@ -5,7 +5,7 @@ import mail
 
 
 @celery.task(queue='mailer', ignore_result=True)
-def task_send_email(data, template):
+def task_send_email(account_id, template):
     
     if template == 'signup':
-        mail.signup(data)
+        mail.signup(account_id)

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from flask import current_app as app
 from datetime import datetime
-from tasks import book_like
 from bson.objectid import ObjectId
-from settings import PRIMARY_ACCOUNT
+from settings import PRIMARY_ACCOUNT, db
 
 TYPE = {
     'SYSTEM_WELCOME':'system_welcome',
@@ -34,9 +32,10 @@ TYPE = {
 def notification_get(account_id):
 
     lookup = {'account_id': account_id}
-    notifications = app.data.driver.db['notifications']
+    
 
-    cursor = notifications.find(lookup).sort([('_created', -1 )]).limit(20)
+
+    cursor = db.notifications.find(lookup).sort([('_created', -1 )]).limit(20)
 
     d = []
     for document in cursor:
@@ -52,7 +51,6 @@ def notification_get(account_id):
 
 
 def notification_create(account_id, payload):
-    notifications = app.data.driver.db['notifications']
 
     date_utc = datetime.utcnow().replace(microsecond=0)
 
@@ -66,16 +64,16 @@ def notification_create(account_id, payload):
     payload['_created'] = date_utc
     payload['_updated'] = date_utc
     payload['_deleted'] = False
-    notifications.insert_one(payload)
+    db.notifications.insert_one(payload)
     
 
     return payload
 
 def notification_read(account_id, notification_id):
-    notifications = app.data.driver.db['notifications']
+
     lookup = {'account_id': account_id, '_id': notification_id}
 
-    doc = notifications.find_one(lookup)
+    doc = db.notifications.find_one(lookup)
 
     if not doc:
         return None
@@ -90,12 +88,12 @@ def notification_read(account_id, notification_id):
             }
         }
 
-        notifications.update(lookup,payload)
+        db.notifications.update(lookup,payload)
 
     return True
 
 def notification_view(account_id, ids):
-    notifications = app.data.driver.db['notifications']
+
 
     lookup = {'account_id': account_id, '_id': {'$in': ids} }
 
@@ -108,21 +106,19 @@ def notification_view(account_id, ids):
         }
     }
 
-    notifications.update(lookup,payload)
+    db.notifications.update(lookup,payload)
 
     return True
 
 def account_info(account_id):
-    db = app.data.driver.db['accounts']
-    return db.find_one({'_id':account_id},{'fullname':1,'photo':1})
+    return db.books.find_one({'_id':account_id},{'fullname':1,'photo':1})
 
-def book_info(book_id):
-    db = app.data.driver.db['books']
-    return db.find_one({'_id':book_id},{'title':1})
+def book_info(book_id):  
+    return db.books.find_one({'_id':book_id},{'title':1})
 
 def notify_request_friend_delete(account_id, friend_id):
-    db = app.data.driver.db['notifications']
-    db.delete_one({
+
+    db.notifications.delete_one({
         'account_id': friend_id,
         'from_id': account_id,
         'view': False    
@@ -134,7 +130,7 @@ def notify(friend_id, account_id=None, book_id=None, group=None):
     if not account_id:
         account_id = PRIMARY_ACCOUNT
 
-    notifications = app.data.driver.db['notifications']
+   
 
     date_utc = datetime.utcnow().replace(microsecond=0)
     payload = {}
@@ -151,7 +147,7 @@ def notify(friend_id, account_id=None, book_id=None, group=None):
     if book_id:
         payload['book'] = book_info(book_id)
 
-    notifications.insert_one(payload)
+    db.notifications.insert_one(payload)
     
 
     return payload

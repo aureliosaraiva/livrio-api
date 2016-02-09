@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from util.mail import Mail
+from settings import db
 
 
-def signup(doc):
+def signup(account_id):
+    doc = db.accounts.find_one(account_id)
     m = Mail()
     m.subject('Bem-vindo ao Livrio!')
     m.from_name('Livrio')

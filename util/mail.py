@@ -43,9 +43,6 @@ class Mail(object):
             self.payload['to_email'] = email
 
     def variables(self, data):
-        
-        for i in data:
-            data[i] = data[i].decode('utf-8')
 
         self.data = data
         self.payload['variables'] = data

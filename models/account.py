@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-from flask import current_app as app
+from settings import db
 from datetime import datetime
 from bson.objectid import ObjectId
-from util import legacy
-from util import token
-from util import fb
+from util import legacy, token, fb, s3, google
 import time
-from util import s3
 import base64
 import notification
+from tasks import schedule
+
 
 #@slow
 #@bugfix - cover sendo salvo e não apagado o anterior
@@ -17,8 +16,7 @@ def save_cover(account_id, source):
         filename = 'user/' + str(account_id) + '/cover_' + str(int(time.time())) + '.jpg'
         path = s3.upload_from_string(base64.b64decode(source),filename,content_type="image/jpg")
         if path:
-            db = app.data.driver.db['accounts']
-            db.update_one({'_id':account_id}, {'$set': {'cover':path},'$addToSet':{'covers_list': path}})
+            db.accounts.update_one({'_id':account_id}, {'$set': {'cover':path},'$addToSet':{'covers_list': path}})
     except:
         pass
 
@@ -29,14 +27,12 @@ def save_photo(account_id, source):
         filename = 'user/' + str(account_id) + '/photo_' + str(int(time.time())) + '.jpg'
         path = s3.upload_from_string(base64.b64decode(source),filename,content_type="image/jpg")
         if path:
-            db = app.data.driver.db['accounts']
-            db.update_one({'_id':account_id}, {'$set': {'photo':path},'$push':{'photos_list': {'type':'upload','link':path}}})
+            db.accounts.update_one({'_id':account_id}, {'$set': {'photo':path},'$push':{'photos_list': {'type':'upload','link':path}}})
     except:
         pass
 
 
 def create(data):
-    db = app.data.driver.db['accounts']
     date_utc = datetime.utcnow().replace(microsecond=0)
 
     payload = {
@@ -55,12 +51,15 @@ def create(data):
         if i in data:
             payload[i] = data[i]
 
-    db.insert_one(payload)
+    db.accounts.insert_one(payload)
 
     # Notificação
     notification.notify(
         friend_id=payload['_id'], 
         group=notification.TYPE['SYSTEM_WELCOME'])
+
+    schedule.send_mail(payload['_id'],'signup')
+
 
     return payload
 
@@ -69,8 +68,7 @@ def login_facebook(access_token):
     data = fb.profile(access_token)
     email = data['email']
 
-    db = app.data.driver.db['accounts']
-    doc = db.find_one({'email':email}, {'auth': 1})
+    doc = db.accounts.find_one({'email':email}, {'auth': 1})
 
     if not doc:
         data['facebook'] = {
@@ -86,9 +84,8 @@ def login_facebook(access_token):
 
 #@bugfix melhorar logica
 def login(email=None, password=None, access_token=None):
-    db = app.data.driver.db['accounts']
     if not access_token:
-        doc = db.find_one({'email':email}, {'auth': 1})
+        doc = db.accounts.find_one({'email':email}, {'auth': 1})
     else:
         doc = login_facebook(access_token)
 
@@ -108,7 +105,7 @@ def login(email=None, password=None, access_token=None):
         }
     }
 
-    db.update_one(lookup,payload)
+    db.accounts.update_one(lookup,payload)
 
     return {
         'token': _token,
@@ -116,22 +113,22 @@ def login(email=None, password=None, access_token=None):
     }
 
 def logout(account_id):
-    db = app.data.driver.db['accounts']
+
     lookup = {'_id':account_id}
-    doc = db.find_one(lookup)
+
     
     payload = {
         '$set': {
             'auth.token': None
         }
     }
-    db.update_one(lookup,payload)
+    db.accounts.update_one(lookup,payload)
 
 
 
 #@bug tratar data
 def account_device(account_id, data):
-    db = app.data.driver.db['accounts']
+
     lookup = {'_id':account_id}
     doc = db.find_one(lookup)
 
@@ -140,14 +137,13 @@ def account_device(account_id, data):
             'device_token': data
         }
     }
-    db.update_one(lookup,payload)
+    db.accounts.update_one(lookup,payload)
 
 
 #@bug tratar data
 def account_update(account_id, data):
-    db = app.data.driver.db['accounts']
     lookup = {'_id':account_id}
-    doc = db.find_one(lookup)
+    doc = db.accounts.find_one(lookup)
 
     payload_data = {}
 
@@ -176,12 +172,13 @@ def account_update(account_id, data):
         l = data['location'].split(',')
         payload_data['location.latitude'] = l[0]
         payload_data['location.longitude'] = l[1]
+        schedule.search_location(account_id)
 
     if payload_data:
         payload = {
             '$set': payload_data
         }
-        db.update_one(lookup,payload)
+        db.accounts.update_one(lookup,payload)
 
     if 'cover_source' in data:
         save_cover(account_id, data['cover_source'])
@@ -194,9 +191,8 @@ def account_update(account_id, data):
 
 #@bug tratar data
 def account_info(account_id):
-    db = app.data.driver.db['accounts']
     lookup = {'_id':account_id}
-    doc = db.find_one(lookup,{
+    doc = db.accounts.find_one(lookup,{
         'first_name':1,
         'last_name':1,
         'email':1,
@@ -225,10 +221,9 @@ def account_info(account_id):
 
 
 def account_info_basic(account_id, multi=False, friend_id=None):
-    db = app.data.driver.db['accounts']
     if multi:
         lookup = {'_id':{'$in':account_id}}
-        cursor = db.find(lookup,{'fullname':1,'first_name':1,'last_name':1,'photo':1})
+        cursor = db.accounts.find(lookup,{'fullname':1,'first_name':1,'last_name':1,'photo':1})
         users = {}
         for doc in cursor:
             if not 'photo' in doc:
@@ -239,14 +234,25 @@ def account_info_basic(account_id, multi=False, friend_id=None):
 
     lookup = {'_id':account_id}
 
-    doc = db.find_one(lookup,{'fullname':1,'first_name':1,'last_name':1,'photo':1,'friends_list':1})
+    doc = db.accounts.find_one(lookup,{'fullname':1,'first_name':1,'last_name':1,'photo':1,'friends_list':1})
 
     if 'friends_list' in doc and friend_id in doc['friends_list']:
         doc['is_friend'] = True
-    
-    del doc['friends_list']
+    if 'friends_list' in doc:
+        del doc['friends_list']
 
     if not 'photo' in doc:
         doc['photo'] = 'img/avatar.png'
 
     return doc
+
+
+def update_location(account_id):
+    doc = db.accounts.find_one(account_id)
+
+    if 'location' in doc and 'latitude' in doc['location'] and 'longitude' in doc['location']:
+        payload = doc['location']
+        location = google.get_location(doc['location']['latitude'], doc['location']['longitude'])
+        payload.update(location)
+        db.accounts.update_one({'_id':account_id},{'$set':{'location': payload}})
+

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import current_app as app
+from settings import db
 from datetime import datetime
 from bson.objectid import ObjectId
 import account
@@ -16,12 +16,12 @@ STATUS_NOTIFICATION = {
 
 
 def start_loan(account_id, book_id, friend_id, data):
-    db = app.data.driver.db['books']
+
     date_utc = datetime.utcnow().replace(microsecond=0)
 
     lookup = {'_id': book_id}
 
-    doc = db.find_one(lookup)
+    doc = db.books.find_one(lookup)
 
     if 'loaned' in doc:
         return None
@@ -54,13 +54,13 @@ def start_loan(account_id, book_id, friend_id, data):
         payload['duration'] = data['duration']
         user['duration'] = data['duration']
 
-    app.data.driver.db['books_loans'].insert_one(payload)
+    db.books_loans.insert_one(payload)
 
     
     user['status'] = type_request
     user['loan_id'] = payload['_id']
 
-    db.update_one(lookup,{
+    db.books.update_one(lookup,{
         '$set':{
             'loaned':user
         }
@@ -76,10 +76,10 @@ def start_loan(account_id, book_id, friend_id, data):
     return True
 
 def change_status(account_id, book_id, data):
-    db = app.data.driver.db['books']
+    
     lookup = {'_id': book_id}
     date_utc = datetime.utcnow().replace(microsecond=0)
-    doc = db.find_one(lookup)
+    doc = db.books.find_one(lookup)
 
     if not 'loaned' in doc:
         return None
@@ -99,7 +99,7 @@ def change_status(account_id, book_id, data):
     }
 
     
-    app.data.driver.db['books_loans'].update_one({'_id': doc['loaned']['loan_id']},payload)
+    db.books_loans.update_one({'_id': doc['loaned']['loan_id']},payload)
 
 
 
@@ -108,7 +108,7 @@ def change_status(account_id, book_id, data):
 
     # Notificação
     if data['status'] in STATUS_NOTIFICATION:
-        loaned = app.data.driver.db['books_loans'].find_one({'_id': doc['loaned']['loan_id']})
+        loaned = db.books_loans.find_one({'_id': doc['loaned']['loan_id']})
         if account_id == loaned['owner_id']:
             account_id = loaned['owner_id']
             friend_id = loaned['friend_id']
@@ -125,9 +125,8 @@ def change_status(account_id, book_id, data):
     return True
 
 def get_info_old(account_id, loan_id):
-    db = app.data.driver.db['books_loans']
 
-    doc = db.find_one({'_id':loan_id},{'status':1, 'duration':1, '_created':1,'friend_id':1})
+    doc = db.books_loans.find_one({'_id':loan_id},{'status':1, 'duration':1, '_created':1,'friend_id':1})
 
     if not doc:
         return False

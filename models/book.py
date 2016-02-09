@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import current_app as app
+from settings import db
 from datetime import datetime
 from bson.objectid import ObjectId
 import account
@@ -9,9 +9,8 @@ import notification
 import loan
 
 def get_by_isbn(account_id, isbn):
-    db = app.data.driver.db['books']
     lookup = {'account_id':account_id,'isbn':isbn}
-    doc = db.find_one(lookup);
+    doc = db.books.find_one(lookup);
     if doc:
         return doc['_id'];
 
@@ -29,15 +28,14 @@ def search_isbn(isbn):
         ]
     };
     
-    return app.data.driver.db['isbn'].find_one(lookup)
+    return db.isbn.find_one(lookup)
 
 #@slow
 def save_cover(account_id, book_id, source):
     try:
         path = s3.upload_from_string(base64.b64decode(source),'cover/'+str(book_id)+'/front.jpg',content_type="image/jpg")
         if path:
-            db = app.data.driver.db['books']
-            db.update_one({'_id':book_id,'account_id':account_id}, {'$set': {'cover':path},'$push':{'covers_list': {'type':'upload','link':path}}})
+            db.books.update_one({'_id':book_id,'account_id':account_id}, {'$set': {'cover':path},'$push':{'covers_list': {'type':'upload','link':path}}})
     except:
         pass
 
@@ -45,7 +43,6 @@ def save_cover(account_id, book_id, source):
 
 def save(account_id, data, book_id=None):
 
-    db = app.data.driver.db['books']
     date_utc = datetime.utcnow().replace(microsecond=0)
 
     if 'isbn' in data and not book_id:
@@ -70,7 +67,7 @@ def save(account_id, data, book_id=None):
             if i in data:
                 payload[i] = data[i]
 
-        db.insert_one(payload)
+        db.books.insert_one(payload)
         book_id = payload['_id']
 
     else:
@@ -86,7 +83,7 @@ def save(account_id, data, book_id=None):
             if i in data:
                 payload[i] = data[i]
 
-        db.update_one(lookup, {'$set': payload})
+        db.books.update_one(lookup, {'$set': payload})
 
 
     if 'cover_source' in data:
@@ -96,9 +93,8 @@ def save(account_id, data, book_id=None):
 
 
 def delete(account_id, book_id):
-    db = app.data.driver.db['books']
     lookup = {'_id': book_id,'account_id': account_id}
-    db.update_one(lookup, {'$set': {'_deleted':True}})
+    db.books.update_one(lookup, {'$set': {'_deleted':True}})
     return True
 
 
@@ -113,8 +109,7 @@ def book_search(account_id, params=None, friend_id=None):
     if 'friend' in params:
         friend_id = ObjectId(params['friend'])
 
-    db = app.data.driver.db['accounts']
-    user = db.find_one({'_id':account_id})
+    user = db.accounts.find_one({'_id':account_id})
 
 
     if friend_id:
@@ -135,7 +130,7 @@ def book_search(account_id, params=None, friend_id=None):
             lookup = {'account_id': {'$in': accounts_search}}
 
 
-    cursor = db.find({'_id': {'$in': accounts_search}},{'fullname':1})
+    cursor = db.accounts.find({'_id': {'$in': accounts_search}},{'fullname':1})
     
     users = {}
     for i in cursor:
@@ -150,8 +145,7 @@ def book_search(account_id, params=None, friend_id=None):
 
     lookup['_deleted'] = False
 
-    db = app.data.driver.db['books']
-    cursor = db.find(lookup,{ 'title':1,'authors':1,'account_id':1,'cover':1,'shelves':1,'isbn':1,'page_count':1,'published_date':1,'publisher':1,'loaned':1,'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
+    cursor = db.books.find(lookup,{ 'title':1,'authors':1,'account_id':1,'cover':1,'shelves':1,'isbn':1,'page_count':1,'published_date':1,'publisher':1,'loaned':1,'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
 
     limit = 25
     offset = 0
@@ -183,24 +177,22 @@ def book_like(account_id, book_id, unlike=False):
 
     lookup = {'_id': book_id}
 
-    books = app.data.driver.db['books']
 
-    book = books.find_one(lookup)
+    book = db.books.find_one(lookup)
 
     if not book:
         return None
 
+    date_utc = datetime.utcnow().replace(microsecond=0)
     if not ('likes' in book and account_id in book['likes']):
-        date_utc = datetime.utcnow().replace(microsecond=0)
-        event_like = app.data.driver.db['event_like']
-        event_like.insert_one({
+        db.event_like.insert_one({
             'book_id': book_id,
             'like': True,
             'account_id': account_id,
             '_created': date_utc
         })
 
-        books.update_one(lookup, {'$addToSet':{'likes': account_id}}, upsert=False)
+        db.books.update_one(lookup, {'$addToSet':{'likes': account_id}}, upsert=False)
 
         # Notificação
         notification.notify(
@@ -211,16 +203,14 @@ def book_like(account_id, book_id, unlike=False):
 
         
     elif unlike and 'likes' in book and account_id in book['likes']:
-        date_utc = datetime.utcnow().replace(microsecond=0)
-        event_like = app.data.driver.db['event_like']
-        event_like.insert_one({
+        db.event_like.insert_one({
             'book_id': book_id,
             'unlike': True,
             'account_id': account_id,
             '_created': date_utc
         })
 
-        books.update_one(lookup, {'$pull':{'likes': account_id}}, upsert=False)
+        db.books.update_one(lookup, {'$pull':{'likes': account_id}}, upsert=False)
 
     return True
 
@@ -230,8 +220,7 @@ def book_unlike(account_id, book_id):
 
 def book_is_like(account_id, book_id):
     lookup = {'_id': book_id}
-    books = app.data.driver.db['books']
-    book = books.find_one(lookup)
+    book = db.books.find_one(lookup)
 
     if not book:
         return None
@@ -242,8 +231,7 @@ def book_is_like(account_id, book_id):
 
 def book_get_comment(book_id):
     lookup = {'_id': book_id, '_deleted': False}
-    books = app.data.driver.db['books']
-    doc = books.find_one(lookup,{'comments':1})
+    doc = db.books.find_one(lookup,{'comments':1})
 
     if 'comments' in doc:
 
@@ -264,7 +252,6 @@ def book_get_comment(book_id):
 #@bugfix pegar dados do usuário
 def book_create_comment(account_id, book_id, comment):
     lookup = {'_id': book_id}
-    books = app.data.driver.db['books']
 
     date_utc = datetime.utcnow().replace(microsecond=0)
     payload = {
@@ -275,16 +262,15 @@ def book_create_comment(account_id, book_id, comment):
         '_updated': date_utc,
         '_deleted': False
     }
-    books.update_one(lookup, {'$push':{'comments': payload}}, upsert=False)
+    db.books.update_one(lookup, {'$push':{'comments': payload}}, upsert=False)
     payload['owner'] = account.account_info_basic(account_id)
     return payload
 
 
 #@bug tratar data
 def book_info(account_id, book_id):
-    db = app.data.driver.db['books']
     lookup = {'_id':book_id}
-    doc = db.find_one(lookup,{
+    doc = db.books.find_one(lookup,{
         'title':1,    
         'isbn':1,
         'cover':1,
@@ -313,12 +299,6 @@ def book_info(account_id, book_id):
     if account_id == doc['account_id']:
         doc['is_owner'] = True
         del doc['account_id']
-
-    #if 'loan_id' in doc:
-    #    doc['loaned'] = loan.get_info_old(account_id, doc['loan_id'])
-
-
-    
 
 
     return doc
