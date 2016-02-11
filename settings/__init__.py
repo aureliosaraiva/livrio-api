@@ -46,6 +46,10 @@ AWS = {
     'AWS_ASSOCIATE_TAG': 'livrio08-20'
 }
 
+DEFAULT = {
+    'book': 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/book.gif'
+}
+
 SENDGRID = {
     'API_KEY': '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'
 }

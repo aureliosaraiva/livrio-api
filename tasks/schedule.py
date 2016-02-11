@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tasks import task_send_email, task_send_push, task_location, task_download_photo_account, task_download_cover_account, task_download_cover_book, task_download_cover_isbn
+from tasks import task_insert_book, task_send_email, task_send_push, task_location, task_download_photo_account, task_download_cover_account, task_download_cover_book, task_download_cover_isbn
 from settings import db
 from datetime import datetime
 
@@ -71,4 +71,12 @@ def download_photo_account(account_id, url):
             task_download_photo_account.apply_async(args)
         except Exception, e:
             register_failure('task_download_photo_account',args, str(e))
+
+def insert_book(book):
+    args = [book]
+    try:
+        task_insert_book.apply_async(args)
+    except Exception, e:
+        print e
+        register_failure('task_insert_book',args, str(e))
 

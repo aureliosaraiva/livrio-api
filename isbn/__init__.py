@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from eve import Eve
 from flask import current_app as app
 from eve.methods.post import post_internal
-from util import search_isbn
+from util import search_isbn, google
 from settings import EVE_SETTINGS_ISBN
 import json
 from tasks import schedule
@@ -31,7 +31,7 @@ def evt_isbn_pre_get(request, lookup):
     payload = search_isbn.find_isbn_amazon(isbn)
 
     if not payload:
-        payload = search_isbn.find_isbn_google(isbn)
+        payload = search_isbn.google(isbn, limit=1)
 
     if not payload:
         return None

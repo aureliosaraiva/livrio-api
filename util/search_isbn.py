@@ -11,63 +11,6 @@ def db():
     return app.data.driver.db['isbn']
 
 
-def find_isbn_google(isbn):
-    url = 'https://www.googleapis.com/books/v1/volumes?q=%s' % isbn
-    response = urllib2.urlopen(url)
-    html = response.read()
-    data = json.loads(html)
-
-    if 'totalItems' in data and data['totalItems'] == 0:
-        return None
-
-    book = {}
-
-    for item in data['items']:
-        volume = item['volumeInfo']
-
-        for ind in volume['industryIdentifiers']:
-            if ind['type'] == 'ISBN_10':
-                book['isbn'] = ind['identifier']
-            elif ind['type'] == 'ISBN_13':
-                book['isbn_13'] = ind['identifier']
-            else:
-                book['isbn_other'] = ind['identifier']
-
-        book['origin'] = {'name':'google','id':item['id']}
-
-        if 'title' in volume:
-            book['title'] = volume['title']
-
-        if 'subtitle' in volume:
-            book['subtitle'] = volume['subtitle']
-
-        if 'authors' in volume:
-            book['authors'] = volume['authors']
-
-        if 'publisher' in volume:
-            book['publisher'] = volume['publisher']
-
-        if 'publishedDate' in volume:
-            book['publishedDate'] = volume['publishedDate']
-
-        if 'pageCount' in volume:
-            book['pageCount'] = volume['pageCount']
-
-        if 'categories' in volume:
-            book['categories'] = volume['categories']
-
-        if 'language' in volume:
-            book['language'] = volume['language']
-
-        if 'description' in volume:
-            book['description'] = volume['description']
-
-        if 'imageLinks' in volume and 'thumbnail' in volume['imageLinks']:
-            book['cover'] = volume['imageLinks']['thumbnail']
-
-    return book
-       
-     
 def find_isbn_amazon(isbn):
     amazon = bottlenose.Amazon(AWS['AWS_ACCESS_KEY_ID'], AWS['AWS_SECRET_ACCESS_KEY'], AWS['AWS_ASSOCIATE_TAG'])
     response = amazon.ItemLookup(ItemId=str(isbn), ResponseGroup="Large",
