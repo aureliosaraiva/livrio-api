@@ -95,7 +95,7 @@ def book_data(item):
     return book
 
 def search_books(word, page=0, limit=20):
-    url = "https://www.googleapis.com/books/v1/volumes?q={}&startIndex={}&maxResults={}".format(word, str(page),str(limit))
+    url = "https://www.googleapis.com/books/v1/volumes?q={}&startIndex={}&maxResults={}&printType=books&orderBy=newest".format(word, str(page),str(limit))
 
     response = urllib2.urlopen(url)
     html = response.read()

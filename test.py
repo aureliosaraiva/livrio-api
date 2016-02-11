@@ -4,4 +4,4 @@
 from util import google
 
 
-google.search_books('php',page=0)
+print google.search_books('php',page=0)
