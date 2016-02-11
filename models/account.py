@@ -13,10 +13,10 @@ from tasks import schedule
 #@bugfix - cover sendo salvo e não apagado o anterior
 def save_cover(account_id, source):
     try:
-        filename = 'user/' + str(account_id) + '/cover_' + str(int(time.time())) + '.jpg'
+        filename = 'user/' + str(account_id) + '/cover.jpg'
         path = s3.upload_from_string(base64.b64decode(source),filename,content_type="image/jpg")
         if path:
-            db.accounts.update_one({'_id':account_id}, {'$set': {'cover':path},'$addToSet':{'covers_list': path}})
+            db.accounts.update_one({'_id':account_id}, {'$set': {'cover':path}})
     except:
         pass
 
@@ -24,10 +24,10 @@ def save_cover(account_id, source):
 #@bugfix - cover sendo salvo e não apagado o anterior
 def save_photo(account_id, source):
     try:
-        filename = 'user/' + str(account_id) + '/photo_' + str(int(time.time())) + '.jpg'
+        filename = 'user/' + str(account_id) + '/photo.jpg'
         path = s3.upload_from_string(base64.b64decode(source),filename,content_type="image/jpg")
         if path:
-            db.accounts.update_one({'_id':account_id}, {'$set': {'photo':path},'$push':{'photos_list': {'type':'upload','link':path}}})
+            db.accounts.update_one({'_id':account_id}, {'$set': {'photo':path}})
     except:
         pass
 
@@ -46,12 +46,24 @@ def create(data):
         }
     }
 
-    accept = ['fullname','last_name','first_name','gender','phone','email','facebook','device_token','device']
+    if not 'photo' in data:
+        data['photo'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/user.jpg'
+
+    if not 'cover' in data:
+        data['cover'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/cover.jpg'
+
+    accept = ['fullname','last_name','first_name','gender','phone','email','facebook','device_token','device','photo','cover','age_range']
     for i in accept:
         if i in data:
             payload[i] = data[i]
 
     db.accounts.insert_one(payload)
+
+    if 'photo' in payload:
+        schedule.download_photo_account(payload['_id'],payload['photo'])
+
+    if 'cover' in payload:
+        schedule.download_cover_account(payload['_id'],payload['cover'])
 
     # Notificação
     notification.notify(
@@ -150,7 +162,7 @@ def account_update(account_id, data):
     if 'fullname' in data:
         data['first_name'], data['last_name'] = data['fullname'].split(' ',1)
 
-    accept = ['device_token','config','fullname','last_name','first_name','gender','phone']
+    accept = ['device_token','config','fullname','last_name','first_name','gender','phone','cover','photo']
 
     for i in accept:
         if i in data:
@@ -205,10 +217,10 @@ def account_info(account_id):
     })
 
     if not 'photo' in doc:
-        doc['photo'] = 'img/avatar.png'
+        doc['photo'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/user.jpg'
 
     if not 'cover' in doc:
-        doc['cover'] = 'img/bg.jpg'
+        doc['cover'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/cover.jpg'
 
     if not 'config' in doc:
         doc['config'] = {'allowSearchEmail':True,'allowLocation':False,'allowNotificationPush':True,'allowNotificationEmail':True}
@@ -227,7 +239,7 @@ def account_info_basic(account_id, multi=False, friend_id=None):
         users = {}
         for doc in cursor:
             if not 'photo' in doc:
-                doc['photo'] = 'img/avatar.png'
+                doc['photo'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/user.jpg'
             users[doc['_id']] = doc
         return users
     
@@ -242,11 +254,12 @@ def account_info_basic(account_id, multi=False, friend_id=None):
         del doc['friends_list']
 
     if not 'photo' in doc:
-        doc['photo'] = 'img/avatar.png'
+        doc['photo'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/user.jpg'
 
     return doc
 
 
+# Usado somente no Celery
 def update_location(account_id):
     doc = db.accounts.find_one(account_id)
 
@@ -256,3 +269,20 @@ def update_location(account_id):
         payload.update(location)
         db.accounts.update_one({'_id':account_id},{'$set':{'location': payload}})
 
+def download_cover(account_id, url):
+    try:
+        filename = 'user/' + str(account_id) + '/cover.jpg'
+        path = s3.upload_from_url(url,filename,content_type="image/jpg")
+        if path:
+            db.accounts.update_one({'_id':account_id}, {'$set': {'cover':path}})
+    except:
+        pass
+
+def download_photo(account_id, url):
+    try:
+        filename = 'user/' + str(account_id) + '/photo.jpg'
+        path = s3.upload_from_url(url,filename,content_type="image/jpg")
+        if path:
+            db.accounts.update_one({'_id':account_id}, {'$set': {'photo':path}})
+    except:
+        pass

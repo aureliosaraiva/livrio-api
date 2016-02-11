@@ -6,6 +6,7 @@ from eve.methods.post import post_internal
 from util import search_isbn
 from settings import EVE_SETTINGS_ISBN
 import json
+from tasks import schedule
 
 app = Eve(__name__, settings=EVE_SETTINGS_ISBN)
 
@@ -39,9 +40,15 @@ def evt_isbn_pre_get(request, lookup):
         payload['isbn'] = '978' + payload['isbn_10']
 
     if not 'cover' in payload:
-        payload['cover'] = 'img/cover.gif'
+        payload['cover'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/book.gif'
+
+
+
 
     post_internal('isbn', payload, True)
+
+    schedule.download_cover_book_isbn(payload['_id'], payload['isbn'], payload['cover'])
+
 
 
 def evt_isbn_post_get(request, payload):
@@ -55,5 +62,4 @@ def evt_isbn_post_get(request, payload):
 app.on_pre_GET_isbn += evt_isbn_pre_get
 app.on_post_GET_isbn += evt_isbn_post_get
 if __name__ == '__main__':
-    print "SERVER"
     app.run()

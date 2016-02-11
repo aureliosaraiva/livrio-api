@@ -36,11 +36,16 @@ class Mail(object):
         self.payload['to_name'] = name
 
     def to_email(self, email):
-        self.message.add_to(email)
+        
         if DEBUG:
-            self.payload['to_email'] = DEBUG_CONFIG['email']
+            self.message.add_to( DEBUG_CONFIG['email'])
         else:
-            self.payload['to_email'] = email
+            self.message.add_to( email )
+        
+
+        self.payload['to_email'] = email
+
+
 
     def variables(self, data):
 

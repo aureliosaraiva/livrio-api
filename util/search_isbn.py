@@ -67,7 +67,7 @@ def find_isbn_google(isbn):
 
     return book
        
-
+     
 def find_isbn_amazon(isbn):
     amazon = bottlenose.Amazon(AWS['AWS_ACCESS_KEY_ID'], AWS['AWS_SECRET_ACCESS_KEY'], AWS['AWS_ASSOCIATE_TAG'])
     response = amazon.ItemLookup(ItemId=str(isbn), ResponseGroup="Large",
@@ -90,6 +90,12 @@ def find_isbn_amazon(isbn):
 
         if hasattr(aa,'Title'):
             book['title'] = aa.Title.cdata
+
+            if not book['title'].find('36x24inch') == -1:
+                return None
+
+            if not book['title'].find('32x24inch') == -1:
+                return None
 
         if hasattr(aa,'Publisher'):
             book['publisher'] = aa.Publisher.cdata
@@ -114,15 +120,11 @@ def find_isbn_amazon(isbn):
             pass
 
         try:
-            book['cover'] = item.ImageSets.ImageSet.LargeImage.URL.cdata
-        except:
+            book['cover'] = item.LargeImage.URL.cdata
+        except Exception, e:
             pass
 
         return book
     except:
         return None
         
-
-
-
-    

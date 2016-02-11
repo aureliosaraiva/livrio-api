@@ -5,7 +5,7 @@ def profile(token):
     graph = facebook.GraphAPI(access_token=token)
 
     data = {};
-    me = graph.get_object('/me')
+    me = graph.get_object('/me', **{'fields':'cover,first_name,last_name,email,gender,name,age_range'})
 
     data['first_name'] = me['first_name']
     data['last_name'] = me['last_name']
@@ -13,6 +13,10 @@ def profile(token):
     data['email'] = me['email']
     data['gender'] = me['gender']
     data['id'] = me['id']
+    if 'cover' in me:
+        data['cover'] = me['cover']['source']
+
+    data['age_range'] = me['age_range']
     data['photo'] = "http://graph.facebook.com/{}/picture?type=large".format(me['id']);
 
     return data

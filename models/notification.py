@@ -2,6 +2,7 @@
 from datetime import datetime
 from bson.objectid import ObjectId
 from settings import PRIMARY_ACCOUNT, db
+from tasks import schedule
 
 TYPE = {
     'SYSTEM_WELCOME':'system_welcome',
@@ -111,7 +112,7 @@ def notification_view(account_id, ids):
     return True
 
 def account_info(account_id):
-    return db.books.find_one({'_id':account_id},{'fullname':1,'photo':1})
+    return db.accounts.find_one({'_id':account_id},{'fullname':1,'photo':1})
 
 def book_info(book_id):  
     return db.books.find_one({'_id':book_id},{'title':1})
@@ -130,8 +131,6 @@ def notify(friend_id, account_id=None, book_id=None, group=None):
     if not account_id:
         account_id = PRIMARY_ACCOUNT
 
-   
-
     date_utc = datetime.utcnow().replace(microsecond=0)
     payload = {}
     payload['account_id'] = friend_id
@@ -141,6 +140,7 @@ def notify(friend_id, account_id=None, book_id=None, group=None):
     payload['_deleted'] = False
     payload['view'] = False
     payload['from'] = account_info(account_id)
+    payload['user'] = account_info(friend_id)
 
     payload['type'] = group
 
@@ -148,6 +148,9 @@ def notify(friend_id, account_id=None, book_id=None, group=None):
         payload['book'] = book_info(book_id)
 
     db.notifications.insert_one(payload)
+
+    # PUSH
+    schedule.send_push(payload['_id'])
     
 
     return payload

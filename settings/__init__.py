@@ -29,7 +29,7 @@ CELERYD_CONCURRENCY = 8
 
 DEBUG = True
 DEBUG_CONFIG = {
-    'email': 'aurelio+debug@codeway.com.br',
+    'email': 'aurelio@codeway.com.br',
     'platform': 'android',
     'token': 'drtAhphyTsw:APA91bGZHNIfXFTQfFx86poUni3CbDdyKNUbkbYvAWoURdHJF4VrQgxw7dWAnBYpjT75XPIAF4XttqLOrulccAzyGP1N-tfrbl_dM158w_fuXlrPvEUkaGK8eI8lzFOaPTWjiKQ00tX3'
 }

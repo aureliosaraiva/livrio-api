@@ -6,7 +6,16 @@ import account
 from util import s3
 import base64
 import notification
+from tasks import schedule
 import loan
+
+
+def inc_amount_book(account_id):
+    lookup = {'_id':account_id}
+    db.accounts.update_one(lookup,{'$inc':{'amount_books':1}})
+def decr_amount_book(account_id):
+    lookup = {'_id':account_id}
+    db.accounts.update_one(lookup,{'$inc':{'amount_books':-1}})
 
 def get_by_isbn(account_id, isbn):
     lookup = {'account_id':account_id,'isbn':isbn}
@@ -31,11 +40,11 @@ def search_isbn(isbn):
     return db.isbn.find_one(lookup)
 
 #@slow
-def save_cover(account_id, book_id, source):
+def save_cover(book_id, isbn, source):
     try:
-        path = s3.upload_from_string(base64.b64decode(source),'cover/'+str(book_id)+'/front.jpg',content_type="image/jpg")
+        path = s3.upload_from_string(base64.b64decode(source),'cover/'+str(isbn)+'/' + str(book_id) + '.jpg',content_type="image/jpg")
         if path:
-            db.books.update_one({'_id':book_id,'account_id':account_id}, {'$set': {'cover':path},'$push':{'covers_list': {'type':'upload','link':path}}})
+            db.books.update_one({'_id':book_id}, {'$set': {'cover':path}})
     except:
         pass
 
@@ -62,12 +71,13 @@ def save(account_id, data, book_id=None):
             'account_id': account_id
         }
 
-        accept = ['title','isbn','publisher', 'published_date','authors','description','page_count','shelves','draft','subtitle']
+        accept = ['title','isbn','publisher', 'published_date','authors','description','page_count','shelves','draft','subtitle','cover']
         for i in accept:
             if i in data:
                 payload[i] = data[i]
 
         db.books.insert_one(payload)
+        inc_amount_book(account_id)
         book_id = payload['_id']
 
     else:
@@ -87,14 +97,19 @@ def save(account_id, data, book_id=None):
 
 
     if 'cover_source' in data:
-        save_cover(book_id, data['cover_source'])
+        save_cover(book_id, data['isbn'], data['cover_source'])
+
+    if 'cover' in data:
+        schedule.download_cover_book(book_id, data['isbn'], data['cover'])
 
     return book_info(account_id, book_id)
 
 
+#@bugfix possivel bug de ser executado duas vezes e descrementar duas vezes
 def delete(account_id, book_id):
     lookup = {'_id': book_id,'account_id': account_id}
     db.books.update_one(lookup, {'$set': {'_deleted':True}})
+    decr_amount_book(account_id)
     return True
 
 
@@ -287,7 +302,7 @@ def book_info(account_id, book_id):
     })
 
     if not 'cover' in doc:
-        doc['cover'] = 'img/cover.gif'
+        doc['cover'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/book.png'
 
 
     doc['owner'] = account.account_info_basic(doc['account_id'], friend_id=account_id)
@@ -309,3 +324,25 @@ def book_recommend(account_id, friend_id, book_id):
         friend_id=friend_id, 
         book_id=book_id, 
         group=notification.TYPE['FRIEND_RECOMMEND_BOOK'])
+
+def download_cover(book_id, isbn, url):
+    try:
+        import md5
+        isbn = md5.new(isbn + 'E4+eU!BLS&h69^U5GxM@j5!3NnbZQ').hexdigest()
+        filename = 'book/' + str(isbn) + '/front.jpg'
+        path = s3.upload_from_url(url,filename,content_type="image/jpg")
+        if path:
+            db.books.update_one({'_id':book_id}, {'$set': {'cover':path}})
+    except Exception, e:
+        pass
+
+def download_cover_isbn(isbn_id, isbn, url):
+    try:
+        import md5
+        isbn = md5.new(isbn + 'E4+eU!BLS&h69^U5GxM@j5!3NnbZQ').hexdigest()
+        filename = 'book/' + str(isbn) + '/front.jpg'
+        path = s3.upload_from_url(url,filename,content_type="image/jpg")
+        if path:
+            db.isbn.update_one({'_id':isbn_id}, {'$set': {'cover':path}})
+    except Exception, e:
+        pass

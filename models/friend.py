@@ -6,7 +6,12 @@ import notification
 import account
 
 
-
+def inc_amount_friend(account_id):
+    lookup = {'_id':account_id}
+    db.accounts.update_one(lookup,{'$inc':{'amount_friends':1}})
+def decr_amount_friend(account_id):
+    lookup = {'_id':account_id}
+    db.accounts.update_one(lookup,{'$inc':{'amount_friends':-1}});
 
 def friend(account_id, friend_id):
     lookup = {
@@ -114,6 +119,8 @@ def friend_invite_delete(account_id, friend_id):
     payload = { '$pull':{'invited_friends':{'account_id':friend_id}}}
     db.accounts.update_one(lookup,payload)
     notification.notify_request_friend_delete(account_id,friend_id)
+    decr_amount_friend(account_id)
+    decr_amount_friend(friend_id)
 
 
 #@task registrar na tabela de eventos a data do aceite
@@ -141,6 +148,9 @@ def friend_invite_accept(account_id, friend_id):
     lookup = { '_id': friend_id }
     payload = { '$addToSet':{'friends_list': account_id},'$pull':{'invited_friends':{'account_id':account_id}}}
     db.accounts.update_one(lookup,payload)
+
+    inc_amount_friend(account_id)
+    inc_amount_friend(friend_id)
 
     # Notificação
     notification.notify(
