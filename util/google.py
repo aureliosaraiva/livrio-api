@@ -1,4 +1,5 @@
 import urllib2
+import urllib
 import json
 from settings import DEFAULT
 from tasks import schedule
@@ -48,14 +49,17 @@ def book_data(item):
 
     for ind in volume['industryIdentifiers']:
         if ind['type'] == 'ISBN_10':
-            book['isbn'] = ind['identifier']
+            book['isbn_10'] = ind['identifier']
         elif ind['type'] == 'ISBN_13':
-            book['isbn_13'] = ind['identifier']
+            book['isbn'] = ind['identifier']
         else:
             book['isbn_other'] = ind['identifier']
 
     if not 'isbn' in book and 'isbn_10' in book:
         book['isbn'] = '978' + book['isbn_10']
+
+    if not 'isbn' in book and 'isbn_other' in book:
+        book['isbn'] = book['isbn_other']
 
     book['origin'] = {'name':'google','id':item['id']}
 
@@ -94,9 +98,18 @@ def book_data(item):
 
     return book
 
-def search_books(word, page=0, limit=20):
-    url = "https://www.googleapis.com/books/v1/volumes?q={}&startIndex={}&maxResults={}&printType=books&orderBy=newest".format(word, str(page),str(limit))
+def search_books(word, offset=0, limit=20):
+    
+    params = {
+        'startIndex': offset,
+        'maxResults': limit,
+        'q': word,
+        'printType': 'books',
+        'orderBy': 'newest'
+    }
+    url = "https://www.googleapis.com/books/v1/volumes?{}".format(urllib.urlencode(params))
 
+    print url
     response = urllib2.urlopen(url)
     html = response.read()
     data = json.loads(html)

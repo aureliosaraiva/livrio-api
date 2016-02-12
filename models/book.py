@@ -8,7 +8,7 @@ import base64
 import notification
 from tasks import schedule
 import loan
-
+import urllib
 
 def inc_amount_book(account_id):
     lookup = {'_id':account_id}
@@ -126,6 +126,9 @@ def book_search(account_id, params=None, friend_id=None):
 
     user = db.accounts.find_one({'_id':account_id})
 
+    if not 'friends_list' in user:
+        user['friends_list'] = []
+
 
     if friend_id:
         accounts_search = [friend_id]
@@ -145,7 +148,7 @@ def book_search(account_id, params=None, friend_id=None):
             lookup = {'account_id': {'$in': accounts_search}}
 
 
-    cursor = db.accounts.find({'_id': {'$in': accounts_search}},{'fullname':1})
+    cursor = db.accounts.find({'_id': {'$in': accounts_search}},{'fullname':1,'photo':1})
     
     users = {}
     for i in cursor:
@@ -153,13 +156,15 @@ def book_search(account_id, params=None, friend_id=None):
 
     if params:
         if 'search' in params:
-            lookup["$text"] = { '$search': params['search'] }
+            text = urllib.unquote(params['search']).decode('utf8') 
+            lookup["$text"] = { '$search': text }
 
         if 'shelves' in params:
             lookup['shelves'] = {'$in':[params['shelves']]}
 
     lookup['_deleted'] = False
-
+    
+    # ensureIndex({ title: "text", subtitle : "text", isbn : "text",publisher: "text",description:"text",authors:"text" });
     cursor = db.books.find(lookup,{ 'title':1,'authors':1,'account_id':1,'cover':1,'shelves':1,'isbn':1,'page_count':1,'published_date':1,'publisher':1,'loaned':1,'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
 
     limit = 25

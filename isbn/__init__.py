@@ -1,28 +1,44 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-from eve import Eve
-from flask import current_app as app
+from eve import Eve, render
+from flask import current_app as app, request
 from eve.methods.post import post_internal
 from util import search_isbn, google
+from models import isbn
 from settings import EVE_SETTINGS_ISBN
 import json
 from tasks import schedule
 
 app = Eve(__name__, settings=EVE_SETTINGS_ISBN)
 
+@app.route('/v1/search',methods=['GET'])
+def route_search():
+    result = isbn.search(request.args)
+    data = {
+        '_status': 'OK',
+        '_items': result
+    }
+    return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 def evt_isbn_pre_get(request, lookup):
-    if len(lookup['isbn']) == 10:
-        lookup['isbn'] = '978' + lookup['isbn']
-
+    isbn_10 = None
     isbn = lookup['isbn']
+    if len(isbn) == 10:
+        isbn_10 = isbn
+        isbn = '978' + isbn
 
-    lookup = {
-        '$or': [
-            { 'isbn_10': isbn},
-            { 'isbn': isbn}
-        ]
-    };
+
+    lookup = { 'isbn': isbn}
+
+    if isbn_10:
+        lookup = {
+            '$or': [
+                { 'isbn_10': isbn_10},
+                { 'isbn': isbn}
+            ]
+        }
+
+    print lookup
     
     book = app.data.driver.db['isbn'].find_one(lookup)
     if book:
@@ -31,7 +47,7 @@ def evt_isbn_pre_get(request, lookup):
     payload = search_isbn.find_isbn_amazon(isbn)
 
     if not payload:
-        payload = search_isbn.google(isbn, limit=1)
+        payload = google.search_books(isbn, limit=1)
 
     if not payload:
         return None

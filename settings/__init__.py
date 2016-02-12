@@ -10,6 +10,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
 #db.accounts.createIndex( { email: 1 }, { unique: true } )
+#db.isbn.createIndex( { isbn: 1, isbn_10: 1 } )
+#db.books.ensureIndex({ title: "text", subtitle : "text", isbn : "text",publisher: "text",description:"text",authors:"text" })
 
 
 # Task Broker
@@ -186,7 +188,7 @@ EVE_SETTINGS_ISBN = {
         'isbn':{
             'url':'book',
             'additional_lookup': {
-                'url': 'regex("[\w]+")',
+                'url': 'regex("[\w\:]+")',
                 'field': 'isbn',
             },
             'item_lookup_field': 'isbn',
