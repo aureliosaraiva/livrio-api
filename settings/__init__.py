@@ -167,8 +167,8 @@ EVE_SETTINGS_APP = {
 }
 
 EVE_SETTINGS_ISBN = {
-    'MONGO_HOST': 'localhost',
-    'MONGO_PORT': 27017,
+    'MONGO_HOST': 'db.codeway.in',
+    'MONGO_PORT': 4455,
     'MONGO_DBNAME': 'livrio',
     'DEBUG': True,
     'SOFT_DELETE': True,
