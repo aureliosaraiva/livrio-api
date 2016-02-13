@@ -3,6 +3,7 @@ from settings import db
 from datetime import datetime
 from bson.objectid import ObjectId
 import account
+import notification
 
 STATUS_NOTIFICATION = {
     'wait_delivery': 'LOAN_CONFIRM_YES',
