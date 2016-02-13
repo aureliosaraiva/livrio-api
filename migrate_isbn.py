@@ -14,7 +14,7 @@ DATABASE = {'host': 'mysql01.codeway.com.br', 'user': 'CodeWay_Livrio', 'pass': 
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-MONGO_DB = "mongodb://db.codeway.com.br:27017"
+MONGO_DB = "mongodb://db.codeway.com.br:4455"
 
 db = MySQLdb.connect(host=DATABASE['host'],
                      user=DATABASE['user'],
@@ -79,10 +79,10 @@ conn.execute(query)
 result = conn.fetchone()
 
 total = result['total']
-page = int(ceil(total/5000))+1
+page = int(ceil(total/10000))+1
 
 for i in range(0, page):
-    query = "SELECT * FROM sys_isbns limit {},5000".format(i*5000)
+    query = "SELECT * FROM sys_isbns limit {},10000".format(i*5000)
     conn.execute(query)
     result = conn.fetchall()
     print "PAGE: " + str(i)

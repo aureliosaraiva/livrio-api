@@ -11,11 +11,11 @@ from bson.objectid import ObjectId
 from math  import ceil
 
 DATABASE = {'host': 'mysql01.codeway.com.br', 'user': 'CodeWay_Livrio', 'pass': 'vqtIeyYfohR7fjE4', 'base': 'CodeWay_Livrio'}
-DATABASE = {'host': 'localhost', 'user': 'root', 'pass': '', 'base': 'CodeWay_Livrio'}
+# DATABASE = {'host': 'localhost', 'user': 'root', 'pass': '', 'base': 'CodeWay_Livrio'}
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-MONGO_DB = "mongodb://db.codeway.in:27017"
+MONGO_DB = "mongodb://db.codeway.in:4455"
 
 db = MySQLdb.connect(host=DATABASE['host'],
                      user=DATABASE['user'],
@@ -135,10 +135,17 @@ conn.execute(query)
 result = conn.fetchall()
 for row in result:
     payload = {
-        '$addToSet':{'friends_list': get_id('user',row['id_friend'])}
+        '$addToSet':{'friends_list': get_id('user',row['id_friend'])},
+        '$inc': {'amount_friends':1}
     }
 
     db.accounts.update_one({'_id': get_id('user',row['id_user'])}, payload)
+
+    payload = {
+        '$addToSet':{'friends_list': get_id('user',row['id_user'])},
+        '$inc': {'amount_friends':1}
+    }
+    db.accounts.update_one({'_id': get_id('user',row['id_friend'])}, payload)
 
 print "sys_shelfs"
 query = """SELECT * FROM sys_shelfs"""
@@ -230,6 +237,11 @@ for row in result:
     }
 
     db.books.update_one({'_id': get_id('book',row['id_book'])}, payload)
+
+    payload = {
+        '$inc': {'amount_books': 1}
+    }
+    db.shelves.update_one({'_id': get_id('shelf',row['id_shelf'])}, payload)
 
 
 print "sys_book_likes"
