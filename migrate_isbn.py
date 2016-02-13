@@ -14,7 +14,7 @@ DATABASE = {'host': 'mysql01.codeway.com.br', 'user': 'CodeWay_Livrio', 'pass': 
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
 REDIS_DB = 0
-MONGO_DB = "mongodb://db.codeway.com.br:4455"
+MONGO_DB = "mongodb://db.codeway.in:4455"
 
 db = MySQLdb.connect(host=DATABASE['host'],
                      user=DATABASE['user'],

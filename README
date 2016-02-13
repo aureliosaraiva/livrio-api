@@ -107,40 +107,52 @@ https://docs.mongodb.org/manual/tutorial/transparent-huge-pages/
 
 #db01 firewall (10.128.9.115)
 
-ufw default allow incoming
-ufw default deny outgoing
+ufw default allow outgoing
+ufw default deny incoming
 ufw allow 2144/tcp
-# libera o acesso para db2
 ufw allow from 10.128.6.102
 ufw allow from 10.128.7.151
 ufw allow from 10.128.8.123
+ufw allow from 10.128.200.87
 
 #db02 firewall (10.128.6.102 )
 
-ufw default allow incoming
-ufw default deny outgoing
+ufw default allow outgoing
+ufw default deny incoming
 ufw allow 2144/tcp
-# libera o acesso para db1
 ufw allow from 10.128.9.115
 ufw allow from 10.128.7.151
 ufw allow from 10.128.8.123
+ufw allow from 10.128.200.87
 
 #db-arb firewall (10.128.7.151)
 
-ufw default allow incoming
-ufw default deny outgoing
+ufw default allow outgoing
+ufw default deny incoming
 ufw allow 2144/tcp
-
 ufw allow from 10.128.9.115
 ufw allow from 10.128.6.102
 ufw allow from 10.128.8.123
+ufw allow from 10.128.200.87
 
 
 #worker-livrio firewall (10.128.8.123)
 
-ufw default allow incoming
-ufw default deny outgoing
+ufw default allow outgoing
+ufw default deny incoming
 ufw allow 2144/tcp
+
+
+#SWAP
+
+fallocate -l 4G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+swapon -s
+free -m
+nano /etc/fstab
+#/swapfile   none    swap    sw    0   0
 
 
 
