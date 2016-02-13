@@ -113,6 +113,7 @@ ufw allow 2144/tcp
 # libera o acesso para db2
 ufw allow from 10.128.6.102
 ufw allow from 10.128.7.151
+ufw allow from 10.128.8.123
 
 #db02 firewall (10.128.6.102 )
 
@@ -122,6 +123,7 @@ ufw allow 2144/tcp
 # libera o acesso para db1
 ufw allow from 10.128.9.115
 ufw allow from 10.128.7.151
+ufw allow from 10.128.8.123
 
 #db-arb firewall (10.128.7.151)
 
@@ -131,5 +133,14 @@ ufw allow 2144/tcp
 
 ufw allow from 10.128.9.115
 ufw allow from 10.128.6.102
+ufw allow from 10.128.8.123
+
+
+#worker-livrio firewall (10.128.8.123)
+
+ufw default allow incoming
+ufw default deny outgoing
+ufw allow 2144/tcp
+
 
 
