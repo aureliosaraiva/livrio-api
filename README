@@ -1,4 +1,7 @@
+http://stackoverflow.com/questions/373335/how-do-i-get-a-cron-like-scheduler-in-python
+https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04
 
+https://docs.mongodb.org/manual/tutorial/transparent-huge-pages/
 # Usuários
 
 - Cadastro de usuário
@@ -98,5 +101,35 @@
 - Localização do Google Maps
 
 
+
+
+
+
+#db01 firewall (10.128.9.115)
+
+ufw default allow incoming
+ufw default deny outgoing
+ufw allow 2144/tcp
+# libera o acesso para db2
+ufw allow from 10.128.6.102
+ufw allow from 10.128.7.151
+
+#db02 firewall (10.128.6.102 )
+
+ufw default allow incoming
+ufw default deny outgoing
+ufw allow 2144/tcp
+# libera o acesso para db1
+ufw allow from 10.128.9.115
+ufw allow from 10.128.7.151
+
+#db-arb firewall (10.128.7.151)
+
+ufw default allow incoming
+ufw default deny outgoing
+ufw allow 2144/tcp
+
+ufw allow from 10.128.9.115
+ufw allow from 10.128.6.102
 
 
