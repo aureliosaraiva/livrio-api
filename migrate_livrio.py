@@ -71,7 +71,6 @@ def get_id(o,i):
 db.accounts.delete_many({})
 db.books.delete_many({})
 db.shelves.delete_many({})
-db.phone_contacts.delete_many({})
 db.events.delete_many({})
 db.accounts_locations.delete_many({})
 db.history_search.delete_many({})
@@ -370,53 +369,3 @@ for row in result:
     payload = remove_empty_from_dict(payload)
     db.notifications.insert_one(payload)
 
-
-print "sys_contacts_phone"
-
-offset = 0
-query = "SELECT count(*) as total FROM sys_contacts_phone"
-conn.execute(query)
-result = conn.fetchone()
-
-total = result['total']
-page = int(ceil(total/5000))+1
-
-for i in range(0, page):
-    query = "SELECT * FROM sys_contacts_phone limit {},5000".format(i*5000)
-    conn.execute(query)
-    result = conn.fetchall()
-    print "PAGE: " + str(i)
-    for row in result:
-
-        item = decode_json(row['raw_contact'])
-        lookup = {'account_id': get_id('user',row['id_created_by']), 'contact_id': item['id']}
-
-        payload_data = {
-            '_created': to_datetime(row['registration']),
-            '_updated': to_datetime(row['updated']),
-            'source': item
-        }
-
-        emails = []
-        if item['emails']:
-            for e in item['emails']:
-                if e['value'].find('@'):
-                    emails.append(e['value'])
-            payload_data['emails'] = emails
-
-        phones = []
-        if item['phoneNumbers']:
-            for e in item['phoneNumbers']:
-                if len(e['value']) >=8 :
-                    phones.append(e['value'])
-            payload_data['phones'] = emails
-
-        if item['displayName']:
-            payload_data['fullname'] = item['displayName']
-
-        payload_data = remove_empty_from_dict(payload_data)
-        payload = {
-            '$set': payload_data
-        }
-
-        db.phone_contacts.update_one(lookup,payload, upsert=True)
