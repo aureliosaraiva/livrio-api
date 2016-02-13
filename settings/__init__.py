@@ -21,18 +21,7 @@ BROKER_URL = "amqp://livrio:trQDB8NrQrzVRBSa@queue.codeway.in:5672/livrio"
 CELERY_RESULT_BACKEND = "amqp://"
 CELERY_TASK_RESULT_EXPIRES = 1
 CELERY_ACCEPT_CONTENT = ['pickle']
-CELERY_IMPORTS = (
-    'task_send_mail',
-    'task_location',
-    'task_send_push',
-    'task_download_cover_account',
-    'task_download_photo_account',
-    'task_download_cover_book',
-    'task_download_cover_isbn',
-    'task_insert_book'
-
-)
-CELERYD_CONCURRENCY = 8
+CELERYD_CONCURRENCY = 10
 
 DEBUG = True
 DEBUG_CONFIG = {

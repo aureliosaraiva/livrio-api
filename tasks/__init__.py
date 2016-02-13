@@ -60,4 +60,8 @@ def task_insert_book(book):
             payload.update(book)
 
             db.isbn.insert_one(payload)
-            task_download_cover_isbn.apply_async([payload['_id'], book['isbn'], book['cover']])
+            try:
+                print book['cover']
+                task_download_cover_isbn.apply_async([payload['_id'], book['isbn'], book['cover']])
+            except Exception, e:
+                print e
