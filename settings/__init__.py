@@ -22,14 +22,14 @@ CELERY_RESULT_BACKEND = "amqp://"
 CELERY_TASK_RESULT_EXPIRES = 1
 CELERY_ACCEPT_CONTENT = ['pickle']
 CELERY_IMPORTS = (
-    'tasks.task_send_mail',
-    'tasks.task_location',
-    'tasks.task_send_push',
-    'tasks.task_download_cover_account',
-    'tasks.task_download_photo_account',
-    'tasks.task_download_cover_book',
-    'tasks.task_download_cover_isbn',
-    'tasks.task_insert_book'
+    'task_send_mail',
+    'task_location',
+    'task_send_push',
+    'task_download_cover_account',
+    'task_download_photo_account',
+    'task_download_cover_book',
+    'task_download_cover_isbn',
+    'task_insert_book'
 
 )
 CELERYD_CONCURRENCY = 8
