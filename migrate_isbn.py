@@ -82,7 +82,7 @@ total = result['total']
 page = int(ceil(total/10000))+1
 
 for i in range(0, page):
-    query = "SELECT * FROM sys_isbns limit {},10000".format(i*5000)
+    query = "SELECT * FROM sys_isbns limit {},10000".format(i*10000)
     conn.execute(query)
     result = conn.fetchall()
     print "PAGE: " + str(i)
