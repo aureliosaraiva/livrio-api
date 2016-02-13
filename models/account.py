@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from settings import db
+from settings import db, DEFAULT
 from datetime import datetime
 from bson.objectid import ObjectId
 from util import legacy, token, fb, s3, google
@@ -47,10 +47,10 @@ def create(data):
     }
 
     if not 'photo' in data:
-        data['photo'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/user.jpg'
+        data['photo'] = DEFAULT['user']
 
     if not 'cover' in data:
-        data['cover'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/cover.jpg'
+        data['cover'] = DEFAULT['cover']
 
     accept = ['fullname','last_name','first_name','gender','phone','email','facebook','device_token','device','photo','cover','age_range']
     for i in accept:
@@ -217,10 +217,10 @@ def account_info(account_id):
     })
 
     if not 'photo' in doc:
-        doc['photo'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/user.jpg'
+        doc['photo'] = DEFAULT['user']
 
     if not 'cover' in doc:
-        doc['cover'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/cover.jpg'
+        doc['cover'] = DEFAULT['cover']
 
     if not 'config' in doc:
         doc['config'] = {'allowSearchEmail':True,'allowLocation':False,'allowNotificationPush':True,'allowNotificationEmail':True}
@@ -239,7 +239,7 @@ def account_info_basic(account_id, multi=False, friend_id=None):
         users = {}
         for doc in cursor:
             if not 'photo' in doc:
-                doc['photo'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/user.jpg'
+                doc['photo'] = DEFAULT['user']
             users[doc['_id']] = doc
         return users
     
@@ -254,7 +254,7 @@ def account_info_basic(account_id, multi=False, friend_id=None):
         del doc['friends_list']
 
     if not 'photo' in doc:
-        doc['photo'] = 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/user.jpg'
+        doc['photo'] = DEFAULT['user']
 
     return doc
 
