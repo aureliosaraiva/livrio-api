@@ -44,7 +44,8 @@ AWS = {
 
 DEFAULT = {
     'book': 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/book.gif',
-    'user': 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/user.png'
+    'user': 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/user.png',
+    'cover': 'https://livrio-static.s3-sa-east-1.amazonaws.com/default/cover.jpg'
 }
 
 SENDGRID = {
