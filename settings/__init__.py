@@ -60,13 +60,13 @@ PUSH = {
     'GCM': 'AIzaSyCbBO_cyYLTpUm3VOWx7RazZAo6kxnpoq0'
 }
 
-MONGO_DB = "mongodb://localhost:27017"
+MONGO_DB = "mongodb://db.codeway.in:4455"
 
 EVE_SETTINGS_APP = {
     'WTF_CSRF_ENABLED':True,
     'SECRET_KEY':'you-will-never-guess',
     'MONGO_HOST': 'db.codeway.in',
-    'MONGO_PORT': 27017,
+    'MONGO_PORT': 4455,
     'MONGO_DBNAME': 'livrio',
     'DEBUG': True,
     #'ALLOW_UNKNOWN': True,
