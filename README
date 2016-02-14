@@ -2,6 +2,10 @@ http://stackoverflow.com/questions/373335/how-do-i-get-a-cron-like-scheduler-in-
 https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04
 
 https://docs.mongodb.org/manual/tutorial/transparent-huge-pages/
+https://docs.mongodb.org/manual/faq/diagnostics/
+https://www.digitalocean.com/community/tutorials/how-to-add-swap-on-ubuntu-14-04
+http://docs.celeryproject.org/en/latest/tutorials/daemonizing.html
+http://www.shellhacks.com/en/Creating-ASCII-Text-Banners-from-the-Linux-Command-Line
 # Usuários
 
 - Cadastro de usuário
@@ -101,8 +105,28 @@ https://docs.mongodb.org/manual/tutorial/transparent-huge-pages/
 - Localização do Google Maps
 
 
+##############################
+#                            #
+#        FIREWALL            #
+#                            #
+##############################
 
 
+# db01.codeway.com.br
+   - MongoDB
+   - Primary 
+   - Private Network
+        - 10.128.9.115
+    - Public Network
+        -
+    - Firewall
+        ufw default allow outgoing
+        ufw default deny incoming
+        ufw allow 2144/tcp
+        ufw allow from 10.128.6.102
+        ufw allow from 10.128.7.151
+        ufw allow from 10.128.8.123
+        ufw allow from 10.128.200.87
 
 
 #db01 firewall (10.128.9.115)

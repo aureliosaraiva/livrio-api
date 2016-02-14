@@ -345,6 +345,13 @@ for row in result:
 
 
 
+
+def account_info(account_id):
+    return db.accounts.find_one({'_id':account_id},{'fullname':1,'photo':1})
+
+def book_info(book_id):  
+    return db.books.find_one({'_id':book_id},{'title':1})
+
 print "sys_notifications"
 query = """SELECT * FROM sys_notifications"""
 conn.execute(query)
@@ -357,14 +364,18 @@ for row in result:
         '_deleted': False,
         'view': row['view']==1,
         'read': row['read']==1,
-        'account_id': get_id('user',row['id_created_by']),
-        'from_id': get_id('user',row['id_user']),
+        'account_id': get_id('user',row['id_user']),
+        'from_id': get_id('user',row['id_created_by']),
         'type': row['type'],
         'content': decode_json(row['content'])
     }
 
+    payload['from'] = account_info(get_id('user',row['id_created_by']))
+    payload['user'] = account_info(get_id('user',row['id_user']))
+
     if row['id_book']:
         payload['book_id'] = get_id('book',row['id_book'])
+        payload['book'] = book_info(get_id('book',row['id_book']))
 
     payload = remove_empty_from_dict(payload)
     db.notifications.insert_one(payload)
