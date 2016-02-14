@@ -23,14 +23,14 @@ CELERY_TASK_RESULT_EXPIRES = 1
 CELERY_ACCEPT_CONTENT = ['pickle']
 CELERYD_CONCURRENCY = 10
 
-DEBUG = True
+DEBUG = False
 DEBUG_CONFIG = {
     'email': 'aurelio@codeway.com.br',
     'platform': 'android',
     'token': 'drtAhphyTsw:APA91bGZHNIfXFTQfFx86poUni3CbDdyKNUbkbYvAWoURdHJF4VrQgxw7dWAnBYpjT75XPIAF4XttqLOrulccAzyGP1N-tfrbl_dM158w_fuXlrPvEUkaGK8eI8lzFOaPTWjiKQ00tX3'
 }
 
-PRIMARY_ACCOUNT = ObjectId("56b8df25f387bc33fe9790d5")
+PRIMARY_ACCOUNT = ObjectId("56c088952567a539023dc419")
 
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
