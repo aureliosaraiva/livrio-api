@@ -29,6 +29,9 @@ MESSAGE = {
     'loan_sent_refused':None
 }
 
+
+def encode(str):
+    return str.encode('UTF-8').strip()
 def send_push(notification_id):
     doc = db.notifications.find_one(notification_id)
 
@@ -61,9 +64,9 @@ def send_push(notification_id):
 
     if 'book' in doc:
         p.book(doc['book'])
-        p.message(MESSAGE[doc['type']].format(fullname=_from['fullname'], title=doc['book']['title']))
+        p.message(MESSAGE[doc['type']].format(fullname=encode(_from['fullname']), title=encode(doc['book']['title'])))
     else:
-        p.message(MESSAGE[doc['type']].format(fullname=fullname))
+        p.message(MESSAGE[doc['type']].format(fullname=encode(fullname)))
 
 
 

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
-from util import google
+from push import send_push
+from bson.objectid import ObjectId
 
 
-print google.search_books('php',page=0)
+send_push(ObjectId("56c4f6ccf387bc1c956e8781"))
