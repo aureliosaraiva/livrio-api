@@ -146,20 +146,19 @@ def book_search(account_id, params=None, friend_id=None):
         accounts_search = [account_id]
         lookup['loaned'] = { '$exists': True }
     elif where == 'other_loan':
-       accounts_search = [account_id]
        lookup['loaned'] = { '$exists': True}
        lookup['loaned._id'] = account_id
     else:
         accounts_search = [account_id]
   
+
+    users = {}
+
     if accounts_search:
         lookup['account_id'] = {'$in': accounts_search}
 
-    cursor = db.accounts.find({'_id': {'$in': accounts_search}},{'fullname':1,'photo':1})
-    
-    users = {}
-    for i in cursor:
-        users[i['_id']] = i
+        users = account.account_info_basic(accounts_search,True)
+        
 
     if params:
         if 'search' in params:
@@ -170,6 +169,8 @@ def book_search(account_id, params=None, friend_id=None):
             lookup['shelves'] = {'$in':[params['shelves']]}
 
     lookup['_deleted'] = False
+
+    print lookup
     
     # ensureIndex({ title: "text", subtitle : "text", isbn : "text",publisher: "text",description:"text",authors:"text" });
     cursor = db.books.find(lookup,{ 'title':1,'authors':1,'account_id':1,'cover':1,'shelves':1,'isbn':1,'page_count':1,'published_date':1,'publisher':1,'loaned':1,'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
@@ -190,7 +191,10 @@ def book_search(account_id, params=None, friend_id=None):
 
     d = []
     for document in cursor:
-        document['owner'] = users[document['account_id']]
+        if document['account_id'] in users:
+            document['owner'] = users[document['account_id']]
+        else:
+            document['owner'] = account.account_info_basic(document['account_id'])
 
         if document['account_id'] == account_id:
             document['is_owner'] = True
