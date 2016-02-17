@@ -104,9 +104,12 @@ def change_status(account_id, book_id, data):
     db.books_loans.update_one({'_id': doc['loaned']['loan_id']},payload)
 
 
+    print payload
 
     if data['status'] in ['requested_denied','returned','sent_canceled','requested_canceled']:
         db.books.update_one(lookup,{'$unset':{'loaned':''}})
+    else:
+        db.books.update_one(lookup,{'$set':{'loaned.status':data['status']}})
 
     # Notificação
     if data['status'] in STATUS_NOTIFICATION:

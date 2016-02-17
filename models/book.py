@@ -130,23 +130,30 @@ def book_search(account_id, params=None, friend_id=None):
         user['friends_list'] = []
 
 
+    lookup = {}
+    accounts_search = None
+
     if friend_id:
         accounts_search = [friend_id]
-        lookup = {'account_id': friend_id}
+    elif where == 'friends':
+        accounts_search = user['friends_list']
+    elif where == 'my':
+        accounts_search = [account_id]
+    elif where == 'all':
+        accounts_search = user['friends_list']
+        accounts_search.append(account_id)
+    elif where == 'my_loan':
+        accounts_search = [account_id]
+        lookup['loaned'] = { '$exists': True }
+    elif where == 'other_loan':
+       accounts_search = [account_id]
+       lookup['loaned'] = { '$exists': True}
+       lookup['loaned._id'] = account_id
     else:
-        if where == 'friends':
-            accounts_search = user['friends_list']
-            lookup = {'account_id': {'$in': accounts_search}}  
-        else:
-            if where == 'my': 
-                accounts_search = [account_id]
-                lookup = {'account_id': account_id}
-            else:
-                accounts_search = user['friends_list']
-                accounts_search.append(account_id)
-
-            lookup = {'account_id': {'$in': accounts_search}}
-
+        accounts_search = [account_id]
+  
+    if accounts_search:
+        lookup['account_id'] = {'$in': accounts_search}
 
     cursor = db.accounts.find({'_id': {'$in': accounts_search}},{'fullname':1,'photo':1})
     
