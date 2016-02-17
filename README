@@ -138,6 +138,8 @@ ufw allow from 10.128.6.102
 ufw allow from 10.128.7.151
 ufw allow from 10.128.8.123
 ufw allow from 10.128.200.87
+ufw allow from 10.128.17.105
+ufw allow from 10.128.15.161
 
 #db02 firewall (10.128.6.102 )
 
@@ -148,6 +150,8 @@ ufw allow from 10.128.9.115
 ufw allow from 10.128.7.151
 ufw allow from 10.128.8.123
 ufw allow from 10.128.200.87
+ufw allow from 10.128.17.105
+ufw allow from 10.128.15.161
 
 #db-arb firewall (10.128.7.151)
 
@@ -158,9 +162,23 @@ ufw allow from 10.128.9.115
 ufw allow from 10.128.6.102
 ufw allow from 10.128.8.123
 ufw allow from 10.128.200.87
+ufw allow from 10.128.17.105
+ufw allow from 10.128.15.161
 
 
 #worker-livrio firewall (10.128.8.123)
+
+ufw default allow outgoing
+ufw default deny incoming
+ufw allow 2144/tcp
+
+#worker-checkmailing firewall (10.128.17.105)
+
+ufw default allow outgoing
+ufw default deny incoming
+ufw allow 2144/tcp
+
+#worker-checkmailing-external firewall (10.128.17.105)
 
 ufw default allow outgoing
 ufw default deny incoming

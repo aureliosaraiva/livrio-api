@@ -105,7 +105,8 @@ def search_books(word, offset=0, limit=20):
         'maxResults': limit,
         'q': word,
         'printType': 'books',
-        'orderBy': 'newest'
+        'orderBy': 'newest',
+        'key':'AIzaSyDxrLxgqSdVzjUDmajgiYOjbF5qYV2d7Fo'
     }
     url = "https://www.googleapis.com/books/v1/volumes?{}".format(urllib.urlencode(params))
 

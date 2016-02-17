@@ -13,7 +13,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 #db.isbn.createIndex( { isbn: 1, isbn_10: 1 } )
 #db.books.ensureIndex({ title: "text", subtitle : "text", isbn : "text",publisher: "text",description:"text",authors:"text" })
 
+PRODUCTION = False
 
+if PRODUCTION:
+    MONGO_PORT = 4455
+    DEBUG = False
+    MONGO_DB = "mongodb://db.codeway.in:4455"
+else:
+    MONGO_PORT = 27017
+    DEBUG = True
+    MONGO_DB = "mongodb://db.codeway.in:27017"
 # Task Broker
 
 BROKER_HEARTBEAT = 0
@@ -23,7 +32,7 @@ CELERY_TASK_RESULT_EXPIRES = 1
 CELERY_ACCEPT_CONTENT = ['pickle']
 CELERYD_CONCURRENCY = 10
 
-DEBUG = False
+
 DEBUG_CONFIG = {
     'email': 'aurelio@codeway.com.br',
     'platform': 'android',
@@ -56,13 +65,13 @@ PUSH = {
     'GCM': 'AIzaSyCbBO_cyYLTpUm3VOWx7RazZAo6kxnpoq0'
 }
 
-MONGO_DB = "mongodb://db.codeway.in:4455"
+
 
 EVE_SETTINGS_APP = {
     'WTF_CSRF_ENABLED':True,
     'SECRET_KEY':'you-will-never-guess',
     'MONGO_HOST': 'db.codeway.in',
-    'MONGO_PORT': 4455,
+    'MONGO_PORT': MONGO_PORT,
     'MONGO_DBNAME': 'livrio',
     'DEBUG': True,
     #'ALLOW_UNKNOWN': True,
@@ -164,7 +173,7 @@ EVE_SETTINGS_APP = {
 
 EVE_SETTINGS_ISBN = {
     'MONGO_HOST': 'db.codeway.in',
-    'MONGO_PORT': 4455,
+    'MONGO_PORT': 27017,
     'MONGO_DBNAME': 'livrio',
     'DEBUG': True,
     'SOFT_DELETE': True,

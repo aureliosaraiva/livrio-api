@@ -31,7 +31,8 @@ def start_loan(account_id, book_id, friend_id, data):
     # Dono do livro ta emprestando
     if doc['account_id'] == account_id:
         type_request = 'sent'
-        type_notification = 'LENT_SENT'
+        type_notification = 'LOAN_CONFIRM'
+
 
     # Amigo está pedindo emprestado
     else:

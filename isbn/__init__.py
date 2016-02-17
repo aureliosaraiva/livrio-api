@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 from eve import Eve, render
-from flask import current_app as app, request
+from flask import current_app as app, request, abort
 from eve.methods.post import post_internal
 from util import search_isbn, google
 from models import isbn
