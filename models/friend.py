@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from settings import db
+from settings import db, DEFAULT
 from datetime import datetime
 from bson.objectid import ObjectId
 import notification
@@ -21,7 +21,7 @@ def friend(account_id, friend_id):
 
 
 
-    doc = db.accounts.find_one(lookup,{'fullname':1,'photo':1,'cover':1,'first_name':1,'last_name':1,'location':1,'friends_list':1,'invited_friends':1})
+    doc = db.accounts.find_one(lookup,{'fullname':1,'photo':1,'cover':1,'amount_books':1,'first_name':1,'last_name':1,'location':1,'friends_list':1,'invited_friends':1})
 
     if 'friends_list' in doc and account_id in doc['friends_list']:
         doc['is_friend'] = True
@@ -37,10 +37,10 @@ def friend(account_id, friend_id):
                 break
 
     if not 'photo' in doc:
-        doc['photo'] = 'img/avatar.png'
+        doc['photo'] = DEFAULT['user']
 
     if not 'cover' in doc:
-        doc['cover'] = 'img/bg.jpg'
+        doc['cover'] = DEFAULT['cover']
 
     return doc
 
@@ -230,7 +230,7 @@ def friend_search(account_id, params=None):
             lookup["$text"] = { '$search': params['search'] }
 
 
-    cursor = db.accounts.find(lookup,{ 'fullname':1, 'first_name':1, 'last_name':1,'photo':1, 'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
+    cursor = db.accounts.find(lookup,{ 'fullname':1, 'first_name':1, 'last_name':1,'amount_books':1,'photo':1, 'score': { '$meta': "textScore" } }).sort([('score', { '$meta': "textScore" } )])
 
     limit = 25
     offset = 0
@@ -250,7 +250,7 @@ def friend_search(account_id, params=None):
     for doc in cursor:
 
         if not 'photo' in doc:
-            doc['photo'] = 'img/avatar.png'
+            doc['photo'] = DEFAULT['user']
 
         d.append(doc)
 
@@ -264,7 +264,7 @@ def friend_all(account_id, params=None):
         return []
     
     lookup = { '_id': {'$in':doc['friends_list']} }
-    cursor = db.accounts.find(lookup,{ 'fullname':1,'photo':1})
+    cursor = db.accounts.find(lookup,{ 'fullname':1,'photo':1,'amount_books':1})
 
     limit = 25
     offset = 0
@@ -283,7 +283,7 @@ def friend_all(account_id, params=None):
     d = []
     for document in cursor:
         if not 'photo' in document:
-            document['photo'] = 'img/avatar.png'
+            document['photo'] = DEFAULT['user']
 
         d.append(document)
 

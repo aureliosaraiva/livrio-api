@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
-from push import send_push
+from mail import signup
 from bson.objectid import ObjectId
 
 
-send_push(ObjectId("56c4f6ccf387bc1c956e8781"))
+signup(ObjectId("56bbe014f387bc234877fd5a"))

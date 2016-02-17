@@ -39,7 +39,6 @@ def send_push(notification_id):
 
     #@bugfix verificar se usuário autoriza push
 
-    print user
     if not 'device_token' in user:
         return None
 
