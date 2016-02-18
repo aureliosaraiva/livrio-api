@@ -14,6 +14,7 @@ class Mail(object):
     def __init__(self):
         self.sg = sendgrid.SendGridClient(SENDGRID['API_KEY'])
         self.create()
+        self.message.add_category('SIGNUP')
 
 
     def create(self):
