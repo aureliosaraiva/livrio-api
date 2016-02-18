@@ -67,11 +67,18 @@ def route_book_loan_status_old(book_id):
 @app.route('/v1/accounts/create',methods=['POST'])
 def route_account_create():
     
-    result = account.create(request.json)
-    data = {
-        '_id': result['_id'],
-        '_status': 'OK'
-    }
+    try:
+        result = account.create(request.json)
+
+        data = {
+            '_id': result['_id'],
+            '_status': 'OK'
+        }
+    except:
+        data = {
+            'error': 'Email duplicate'
+        }
+
 
     return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
 

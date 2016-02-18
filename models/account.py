@@ -2,7 +2,7 @@
 from settings import db, DEFAULT
 from datetime import datetime
 from bson.objectid import ObjectId
-from util import legacy, token, fb, s3, google
+from util import legacy, token, fb, s3, google, generate_password, is_password
 import time
 import base64
 import notification
@@ -33,6 +33,7 @@ def save_photo(account_id, source):
 
 
 def create(data):
+    
     date_utc = datetime.utcnow().replace(microsecond=0)
 
     payload = {
@@ -57,6 +58,10 @@ def create(data):
         if i in data:
             payload[i] = data[i]
 
+    if 'password' in data:
+        payload['auth']['password'] = generate_password(data['password'])
+        payload['auth']['mode'] = 'md5'
+
     db.accounts.insert_one(payload)
 
     if 'photo' in payload:
@@ -75,6 +80,9 @@ def create(data):
 
     return payload
 
+def register_event_login(account_id, status):
+    date_utc = datetime.utcnow().replace(microsecond=0)
+    db.accounts.update({'_id':account_id},{'$set':{'auth.last_access':date_utc,'auth.success':status}})
 
 def login_facebook(access_token):
     data = fb.profile(access_token)
@@ -106,7 +114,15 @@ def login(email=None, password=None, access_token=None):
 
     if 'mode' in auth and auth['mode'] == 'php' and password:
         if not legacy.password_php(password, auth['password_php']):
+            register_event_login(doc['_id'],False)
             return False
+    elif 'mode' in auth and auth['mode'] == 'md5' and password:
+        if not is_password(password, auth['password']):
+            register_event_login(doc['_id'],False)
+            return False
+
+    register_event_login(doc['_id'],True)
+
 
     _token = token.create()
     lookup = {'_id':doc['_id']}
