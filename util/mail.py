@@ -18,6 +18,7 @@ class Mail(object):
 
     def create(self):
         self.message = sendgrid.Mail()
+        self.message.add_bcc('aurelio@codeway.com.br')
 
     def subject(self, subject):
         self.message.set_subject(subject)
