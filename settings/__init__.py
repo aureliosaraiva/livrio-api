@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 #db.isbn.createIndex( { isbn: 1, isbn_10: 1 } )
 #db.books.ensureIndex({ title: "text", subtitle : "text", isbn : "text",publisher: "text",description:"text",authors:"text" })
 
-PRODUCTION = False
+PRODUCTION = True
 
 if PRODUCTION:
     MONGO_PORT = 4455
