@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tasks import task_insert_book, task_send_email, task_send_push, task_location, task_download_photo_account, task_download_cover_account, task_download_cover_book, task_download_cover_isbn
+from tasks import task_insert_book, task_event, task_send_email, task_send_push, task_location, task_download_photo_account, task_download_cover_account, task_download_cover_book, task_download_cover_isbn
 from settings import db
 from datetime import datetime
 
@@ -79,4 +79,12 @@ def insert_book(book):
     except Exception, e:
         print e
         register_failure('task_insert_book',args, str(e))
+
+def event(event_type, account_id, book_id=None, timer=None):
+    args = [event_type, account_id, book_id, timer]
+    try:
+        task_event.apply_async(args)
+    except Exception, e:
+        print e
+        register_failure('task_event',args, str(e))
 

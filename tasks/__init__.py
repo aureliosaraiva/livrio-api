@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from tasks.celery import celery
 from settings import db
 from datetime import datetime
+import event
 
 
 
@@ -65,3 +66,11 @@ def task_insert_book(book):
                 task_download_cover_isbn.apply_async([payload['_id'], book['isbn'], book['cover']])
             except Exception, e:
                 print e
+
+@celery.task(queue='event', ignore_result=True)
+def task_event(event_type, account_id, book_id=None, timer=None):
+    if event_type == 'signup':
+        event.profile(account_id, timer)
+    else:
+        event.track(event_type, account_id, book_id, timer)
+

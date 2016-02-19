@@ -11,3 +11,4 @@ facebook-sdk
 python-gcm
 apns
 ndg-httpsclient
+mixpanel

@@ -6,7 +6,7 @@ from util import legacy, token, fb, s3, google, generate_password, is_password
 import time
 import base64
 import notification
-from tasks import schedule
+from event import profile as event_profile
 
 
 #@slow
@@ -75,8 +75,7 @@ def create(data):
         friend_id=payload['_id'], 
         group=notification.TYPE['SYSTEM_WELCOME'])
 
-    schedule.send_mail(payload['_id'],'signup')
-
+    event_profile(payload['_id'])
 
     return payload
 
