@@ -32,7 +32,7 @@ EVENT = {
     'about_view': True
 }
 
-def register(event_type, account_id, book_id=None,friend_id=None, timer=None):
+def register(event_type, account_id, book_id=None,friend_id=None, timer=None, retro=False):
     if not timer:
         timer = datetime.utcnow().replace(microsecond=0)
     payload = {
@@ -45,7 +45,10 @@ def register(event_type, account_id, book_id=None,friend_id=None, timer=None):
     db.event_track.insert_one(payload)
 
     if event_type in EVENT and EVENT[event_type]:
-        track(event_type, str(account_id), None, timer=timer)
+        if retro:
+            track_import(event_type, str(account_id), None, timer=timer)
+        else:
+            track(event_type, str(account_id), None, timer=timer)
 
 def track(event_type, account_id, data=None, timer=None):
     try:
@@ -76,13 +79,33 @@ def profile(account_id):
     if 'gender' in doc:
         payload['gender'] = doc['gender']
 
+    if 'phone' in doc:
+        payload['phone'] = doc['phone']
+
+    if 'birthday' in doc:
+        payload['birthday'] = doc['birthday']
+
     if 'location' in doc and 'state' in doc['location']: 
         payload['state'] = doc['location']['state']
         if 'city' in doc['location']:
             payload['city'] = doc['location']['city']
 
+    if 'facebook' in doc and 'user_id' in doc['facebook']:
+        payload['facebook'] = True
+
+    if 'device' in doc:
+        if 'platform' in doc['device']:
+            payload['device'] = doc['device']['platform']
+
+        if 'origin' in doc['device']:
+            payload['origin'] = doc['device']['origin']
+
+        if 'version' in doc['device']:
+            payload['app_version'] = doc['device']['version']
+
+
     mp.people_set(str(account_id),payload,{'$time':created})
 
-def track_import(account_id, type_event, utc):
-    
-    mp.import_data('3e5a5a623cb60717e75e983e06b40e30',account_id, type_event,utc)
+def track_import(event_type, account_id, data=None, timer=None):
+    timer=int(timer.strftime('%s'))
+    mp.import_data('3e5a5a623cb60717e75e983e06b40e30',account_id, event_type,timer)
