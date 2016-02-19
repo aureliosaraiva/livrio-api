@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from event import profile
+from event import profile, register
 from pymongo import MongoClient
 
 
@@ -21,6 +21,22 @@ for doc in cursor:
     print i
 
     profile(doc['_id'])
+    register('signup',doc['_id'], timer=doc['_created'])
+
+    cursor_book = db.books.find({'account_id': doc['_id']})
+    for book in cursor_book:
+        register('book_create',doc['_id'], book_id=book['_id'], timer=book['_created'])
+
+    cursor_events = db.events.find({'account_id': doc['_id']})
+    for evt in cursor_events:
+        if 'like' in evt:
+            register('book_like',doc['_id'], book_id=evt['book_id'], timer=evt['_created'])
+        elif 'book_view' in evt:
+            register('book_view',doc['_id'], book_id=evt['book_id'], timer=evt['_created'])
+        elif 'friend_view' in evt:
+            register('friend_view',doc['_id'], friend_id=evt['friend_id'],  timer=evt['_created'])
+
+
     i += 1
 
     # event_track.track_import(str(doc['_id']), 'signup',sec)

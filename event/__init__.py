@@ -21,6 +21,7 @@ EVENT = {
     'book_create': True,
     'book_update': True,
     'book_search': True,
+    'friend_view': True,
     'friend_request': True,
     'friend_accept': True,
     'friend_cancel': True,
@@ -31,10 +32,11 @@ EVENT = {
     'about_view': True
 }
 
-def register(event_type, account_id, book_id=None):
-    date_utc = datetime.utcnow().replace(microsecond=0)
+def register(event_type, account_id, book_id=None, timer=None):
+    if not timer
+        timer = datetime.utcnow().replace(microsecond=0)
     payload = {
-        '_created': date_utc,
+        '_created': timer,
         'event_type': event_type,
         'account_id': account_id,
         'book_id': book_id
@@ -42,7 +44,7 @@ def register(event_type, account_id, book_id=None):
     db.event_track.insert_one(payload)
 
     if event_type in EVENT and EVENT[event_type]:
-        track(event_type, str(account_id), None, timer=date_utc)
+        track(event_type, str(account_id), None, timer=timer)
 
 def track(event_type, account_id, data=None, timer=None):
     try:

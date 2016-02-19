@@ -72,5 +72,5 @@ def task_event(event_type, account_id, book_id=None, timer=None):
     if event_type == 'signup':
         event.profile(account_id, timer)
     else:
-        event.track(event_type, account_id, book_id, timer)
+        event.register(event_type, account_id, book_id, timer)
 
