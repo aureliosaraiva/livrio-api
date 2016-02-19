@@ -32,14 +32,15 @@ EVENT = {
     'about_view': True
 }
 
-def register(event_type, account_id, book_id=None, timer=None):
+def register(event_type, account_id, book_id=None,friend_id=None, timer=None):
     if not timer:
         timer = datetime.utcnow().replace(microsecond=0)
     payload = {
         '_created': timer,
         'event_type': event_type,
         'account_id': account_id,
-        'book_id': book_id
+        'book_id': book_id,
+        'friend_id': friend_id
     }
     db.event_track.insert_one(payload)
 
