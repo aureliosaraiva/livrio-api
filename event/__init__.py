@@ -33,7 +33,7 @@ EVENT = {
 }
 
 def register(event_type, account_id, book_id=None, timer=None):
-    if not timer
+    if not timer:
         timer = datetime.utcnow().replace(microsecond=0)
     payload = {
         '_created': timer,
