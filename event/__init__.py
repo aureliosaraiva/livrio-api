@@ -57,7 +57,7 @@ def track(event_type, account_id, data=None, timer=None):
 
 def profile(account_id):
 
-    doc = db.accounts.find({'_id':account_id})
+    doc = db.accounts.find_one({'_id':account_id})
 
     created = int(doc['_created'].strftime('%s'))
 
@@ -75,7 +75,8 @@ def profile(account_id):
 
     if 'location' in doc and 'state' in doc['location']: 
         payload['state'] = doc['location']['state']
-        payload['city'] = doc['location']['city']
+        if 'city' in doc['location']:
+            payload['city'] = doc['location']['city']
 
     mp.people_set(str(account_id),payload,{'$time':created})
 
