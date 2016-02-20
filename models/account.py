@@ -7,6 +7,7 @@ import time
 import base64
 import notification
 from event import profile as event_profile
+from tasks import schedule
 
 
 #@slow
