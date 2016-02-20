@@ -19,7 +19,6 @@ EVENT = {
     'book_recommend': True,
     'book_delete': True,
     'notifications': True,
-    
     'book_create': True,
     'book_update': True,
     'book_search': True,
