@@ -14,7 +14,8 @@ class Mail(object):
     def __init__(self):
         self.sg = sendgrid.SendGridClient(SENDGRID['API_KEY'])
         self.create()
-        self.message.add_category('SIGNUP')
+        self.message.add_category('signup')
+        payload['category'] = 'signup'
 
 
     def create(self):
@@ -83,5 +84,5 @@ class Mail(object):
         date_utc = datetime.utcnow().replace(microsecond=0)
 
         self.payload['_created'] = date_utc
-
+        print self.payload
         db.mailer.insert_one(self.payload)

@@ -76,6 +76,7 @@ def create(data):
         friend_id=payload['_id'], 
         group=notification.TYPE['SYSTEM_WELCOME'])
 
+    schedule.send_mail(payload['_id'],'signup')
     event_profile(payload['_id'])
 
     return payload
