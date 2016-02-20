@@ -21,6 +21,7 @@ for doc in cursor:
     print i
 
     profile(doc['_id'])
+    """
     register('signup',doc['_id'], timer=doc['_created'], retro=True)
 
     cursor_book = db.books.find({'account_id': doc['_id']})
@@ -36,7 +37,7 @@ for doc in cursor:
         elif 'friend_view' in evt:
             register('friend_view',doc['_id'], friend_id=evt['friend_id'],  timer=evt['_created'], retro=True)
 
-
+    """
     i += 1
 
     # event_track.track_import(str(doc['_id']), 'signup',sec)
