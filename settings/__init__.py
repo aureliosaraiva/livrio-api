@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 #db.isbn.createIndex( { isbn: 1, isbn_10: 1 } )
 #db.books.ensureIndex({ title: "text", subtitle : "text", isbn : "text",publisher: "text",description:"text",authors:"text" })
 
-PRODUCTION = True
+PRODUCTION = False
 
 if PRODUCTION:
     MONGO_PORT = 4455
@@ -80,7 +80,7 @@ EVE_SETTINGS_APP = {
     'PAGINATION': True,
     'API_VERSION': 'v1',
     'X_EXPOSE_HEADERS': ['content-type'],
-    'X_HEADERS': ['content-type'],
+    'X_HEADERS': ['x-app-platform', 'x-app-platform-lang', 'x-app-platform-version', 'x-app-version','authorization','content-type'],
     'X_DOMAINS': '*',
     'EXTRA_RESPONSE_FIELDS':[],
     'HATEOAS': False,
@@ -134,6 +134,7 @@ EVE_SETTINGS_APP = {
         'shelves': {
             'cache_control': '',
             'cache_expires': 0,
+            'extra_response_fields': ['name'],
             'datasource': {
                 'default_sort': [('name',1)] 
             },
@@ -181,7 +182,7 @@ EVE_SETTINGS_ISBN = {
     'PAGINATION': False,
     'API_VERSION': 'v1',
     'X_EXPOSE_HEADERS': ['content-type'],
-    'X_HEADERS': ['content-type'],
+    'X_HEADERS': ['x-app-platform', 'x-app-platform-lang', 'x-app-platform-version', 'x-app-version','authorization'],
     'X_DOMAINS': '*',
     'EXTRA_RESPONSE_FIELDS':[],
     'HATEOAS': False,

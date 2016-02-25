@@ -53,20 +53,21 @@ def register(event_type, account_id, book_id=None,friend_id=None, timer=None, re
     }
     db.event_track.insert_one(payload)
 
-    if event_type in EVENT and EVENT[event_type]:
-        if retro:
-            track_import(event_type, str(account_id), None, timer=timer)
-        else:
-            track(event_type, str(account_id), None, timer=timer)
+    # if event_type in EVENT and EVENT[event_type]:
+    #     if retro:
+    #         track_import(event_type, str(account_id), None, timer=timer)
+    #     else:
+    #         track(event_type, str(account_id), None, timer=timer)
 
 def track(event_type, account_id, data=None, timer=None):
-    try:
-        if not data:
-            mp.track(account_id, event_type,meta={'$time':timer})
-        elif data:
-            mp.track(account_id, event_type, data,meta={'$time':timer})
-    except:
-        pass
+    # try:
+    #     if not data:
+    #         mp.track(account_id, event_type,meta={'$time':timer})
+    #     elif data:
+    #         mp.track(account_id, event_type, data,meta={'$time':timer})
+    # except:
+    #     pass
+    pass
     
 
 
@@ -113,7 +114,7 @@ def profile(account_id):
             payload['app_version'] = doc['device']['version']
 
 
-    mp.people_set(str(account_id),payload,{'$time':created})
+    # mp.people_set(str(account_id),payload,{'$time':created})
 
 def track_import(event_type, account_id, data=None, timer=None):
     timer=int(timer.strftime('%s'))

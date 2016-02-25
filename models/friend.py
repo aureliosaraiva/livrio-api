@@ -26,6 +26,17 @@ def friend(account_id, friend_id):
     if 'friends_list' in doc and account_id in doc['friends_list']:
         doc['is_friend'] = True
 
+    if 'friends_list' in doc:
+        del doc['friends_list']
+
+    if 'location' in doc:
+        if 'state' in doc['location']:
+            doc['state'] = doc['location']['state']
+        if 'city' in doc['location']:
+            doc['city'] = doc['location']['city']
+
+        del doc['location']
+
     if 'invited_friends' in doc:
         for i in doc['invited_friends']:
             if i['account_id'] == account_id:
@@ -285,7 +296,10 @@ def friend_all(account_id, params=None):
         if not 'photo' in document:
             document['photo'] = DEFAULT['user']
 
+        document['is_friend'] = True
         d.append(document)
+
+
 
     return d
 

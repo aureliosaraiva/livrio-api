@@ -8,9 +8,10 @@ from models import isbn
 from settings import EVE_SETTINGS_ISBN
 import json
 from tasks import schedule
+from flask.ext.cors import CORS
 
 app = Eve(__name__, settings=EVE_SETTINGS_ISBN)
-
+CORS(app, allow_headers=['x-app-platform', 'x-app-platform-lang', 'x-app-platform-version', 'x-app-version','authorization'])
 @app.route('/v1/search',methods=['GET'])
 def route_search():
     result = isbn.search(request.args)
@@ -73,6 +74,7 @@ def evt_isbn_post_get(request, payload):
     if not 'cover' in data:
         data['cover'] = 'img/cover.gif'
 
+    data['_status'] = 'OK'
     payload.set_data(json.dumps(data))
 
 app.on_pre_GET_isbn += evt_isbn_pre_get

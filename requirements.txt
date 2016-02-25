@@ -12,3 +12,4 @@ python-gcm
 apns
 ndg-httpsclient
 mixpanel
+flask-cors

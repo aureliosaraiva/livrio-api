@@ -26,10 +26,13 @@ def save_cover(account_id, source):
 def save_photo(account_id, source):
     try:
         filename = 'user/' + str(account_id) + '/photo.jpg'
+        print filename
         path = s3.upload_from_string(base64.b64decode(source),filename,content_type="image/jpg")
+        print path
         if path:
             db.accounts.update_one({'_id':account_id}, {'$set': {'photo':path}})
-    except:
+    except Exception, e:
+        print e
         pass
 
 
@@ -58,6 +61,7 @@ def create(data):
     for i in accept:
         if i in data:
             payload[i] = data[i]
+
 
     if 'password' in data:
         payload['auth']['password'] = generate_password(data['password'])
@@ -176,7 +180,7 @@ def account_update(account_id, data):
 
     payload_data = {}
 
-    if 'fullname' in data:
+    if 'fullname' in data: #@bug
         data['first_name'], data['last_name'] = data['fullname'].split(' ',1)
 
     accept = ['device_token','config','fullname','last_name','first_name','gender','phone','cover','photo']
@@ -215,11 +219,24 @@ def account_update(account_id, data):
     if 'avatar_source' in data:
         save_photo(account_id, data['avatar_source'])
 
-        
+
+def info(account_id, restrict=False):
+    lookup = {'_id':account_id}
+    doc = db.accounts.find_one(lookup,{
+        'email':1,
+        'gender':1,
+        'phone': 1,
+        'photo':1,
+        'cover':1,
+        'amount_books':1,
+        'fullname':1
+    })
+
+    return doc   
 
 
 #@bug tratar data
-def account_info(account_id):
+def account_info(account_id, restrict=False):
     lookup = {'_id':account_id}
     doc = db.accounts.find_one(lookup,{
         'first_name':1,
@@ -229,6 +246,7 @@ def account_info(account_id):
         'birthday':1,
         'photo':1,
         'cover':1,
+        'location':1,
         'fullname':1,
         'config': 1
     })
@@ -239,12 +257,20 @@ def account_info(account_id):
     if not 'cover' in doc:
         doc['cover'] = DEFAULT['cover']
 
+    if 'fullname' in doc:
+        a = doc['fullname'].split(' ',1)
+        doc['first_name'] = a[0]
+        if len(a)==2:
+            doc['last_name'] = a[1]
+
+    if 'location' in doc:
+        if 'state' in doc['location']:
+            doc['state'] = doc['location']['state']
+        if 'city' in doc['location']:
+            doc['city'] = doc['location']['city']
+
     if not 'config' in doc:
         doc['config'] = {'allowSearchEmail':True,'allowLocation':False,'allowNotificationPush':True,'allowNotificationEmail':True}
-
-    # if 'birthday' in doc:
-    #     doc['birthday'] = 'img/avatar.png'
-   
 
     return doc
 

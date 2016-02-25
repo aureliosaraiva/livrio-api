@@ -298,6 +298,22 @@ def book_create_comment(account_id, book_id, comment):
     return payload
 
 
+def info(book_id):
+    lookup = {'_id':book_id}
+    doc = db.books.find_one(lookup,{
+        'title':1,    
+        'isbn':1,
+        'cover':1,
+        'authors':1,
+        'publisher':1,
+        'page_count':1,
+        'published_date':1,
+        'description':1
+    })
+
+    
+    return doc
+
 #@bug tratar data
 def book_info(account_id, book_id):
     lookup = {'_id':book_id}

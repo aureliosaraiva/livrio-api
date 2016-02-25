@@ -1,0 +1,40 @@
+2016-02-13T01:34:26.777-0500 I WRITE    [conn121] remove livrio.history_search ndeleted:37937 keyUpdates:0 writeConflicts:0 numYields:296 locks:{ Global: { acquireCount: { r: 38234, w: 38234 } }, Database: { acquireCount: { w: 38234 } }, Collection: { acquireCount: { w: 297 } }, Metadata: { acquireCount: { w: 37937 } }, oplog: { acquireCount: { w: 37937 } } } 1028ms
+2016-02-13T01:34:26.780-0500 I COMMAND  [conn121] command livrio.$cmd command: delete { delete: "history_search", deletes: [ { q: {}, limit: 0 } ] } keyUpdates:0 writeConflicts:0 numYields:0 reslen:100 locks:{ Global: { acquireCount: { r: 38234, w: 38234 } }, Database: { acquireCount: { w: 38234 } }, Collection: { acquireCount: { w: 297 } }, Metadata: { acquireCount: { w: 37937 } }, oplog: { acquireCount: { w: 37937 } } } protocol:op_query 1032ms
+
+2016-02-13T01:35:14.928-0500 E STORAGE  [conn121] WiredTiger (12) [1455345314:927682][2076:0x7f5a89036700], file:collection-10--5532199445362019960.wt, WT_CURSOR.insert: memory allocation of 1050 bytes failed: Cannot allocate memory
+
+2016-02-13T01:35:14.952-0500 I NETWORK  [conn121] end connection 10.128.200.87:47595 (4 connections now open)
+
+2016-02-13T01:35:30.938-0500 E STORAGE  [thread1] WiredTiger (12) [1455345330:935909][2076:0x7f5aa5b7c700], file:collection-0--3225813750846495286.wt, WT_SESSION.checkpoint: memory allocation of 13944 bytes failed: Cannot allocate memory
+
+
+2016-02-13T01:35:30.941-0500 E STORAGE  [thread1] WiredTiger (12) [1455345330:941067][2076:0x7f5aa5b7c700], checkpoint-server: checkpoint server error: Cannot allocate memory
+
+
+2016-02-13T01:35:30.941-0500 E STORAGE  [thread1] WiredTiger (-31804) [1455345330:941137][2076:0x7f5aa5b7c700], checkpoint-server: the process must exit and restart: WT_PANIC: WiredTiger library panic
+2016-02-13T01:35:30.941-0500 I -        [thread1] Fatal Assertion 28558
+2016-02-13T01:35:30.941-0500 I -        [thread1] 
+
+***aborting after fassert() failure
+
+
+2016-02-13T01:35:30.956-0500 F -        [thread1] Got signal: 6 (Aborted).
+
+ 0x12ea922 0x12e9a89 0x12ea292 0x7f5aa8f58340 0x7f5aa8bb9cc9 0x7f5aa8bbd0d8 0x1275382 0x1074313 0x1a298cc 0x1a29a6d 0x1a29e54 0x19b454b 0x7f5aa8f50182 0x7f5aa8c7d47d
+----- BEGIN BACKTRACE -----
+{"backtrace":[{"b":"400000","o":"EEA922"},{"b":"400000","o":"EE9A89"},{"b":"400000","o":"EEA292"},{"b":"7F5AA8F48000","o":"10340"},{"b":"7F5AA8B83000","o":"36CC9"},{"b":"7F5AA8B83000","o":"3A0D8"},{"b":"400000","o":"E75382"},{"b":"400000","o":"C74313"},{"b":"400000","o":"16298CC"},{"b":"400000","o":"1629A6D"},{"b":"400000","o":"1629E54"},{"b":"400000","o":"15B454B"},{"b":"7F5AA8F48000","o":"8182"},{"b":"7F5AA8B83000","o":"FA47D"}],"processInfo":{ "mongodbVersion" : "3.2.1", "gitVersion" : "a14d55980c2cdc565d4704a7e3ad37e4e535c1b2", "compiledModules" : [], "uname" : { "sysname" : "Linux", "release" : "3.13.0-71-generic", "version" : "#114-Ubuntu SMP Tue Dec 1 02:34:22 UTC 2015", "machine" : "x86_64" }, "somap" : [ { "elfType" : 2, "b" : "400000", "buildId" : "D76764D44DE9B088362776AF243199FDCF5756E8" }, { "b" : "7FFE95049000", "elfType" : 3, "buildId" : "C2B4C020D20EE489936A4B11AF2C695FD0ECD484" }, { "b" : "7F5AAA16D000", "path" : "/lib/x86_64-linux-gnu/libssl.so.1.0.0", "elfType" : 3, "buildId" : "D08DD65F97859C71BB2CBBF1043BD968EFE18AAD" }, { "b" : "7F5AA9D92000", "path" : "/lib/x86_64-linux-gnu/libcrypto.so.1.0.0", "elfType" : 3, "buildId" : "F86FA9FB4ECEB4E06B40DBDF761A4172B70A4229" }, { "b" : "7F5AA9B8A000", "path" : "/lib/x86_64-linux-gnu/librt.so.1", "elfType" : 3, "buildId" : "92FCF41EFE012D6186E31A59AD05BDBB487769AB" }, { "b" : "7F5AA9986000", "path" : "/lib/x86_64-linux-gnu/libdl.so.2", "elfType" : 3, "buildId" : "C1AE4CB7195D337A77A3C689051DABAA3980CA0C" }, { "b" : "7F5AA9682000", "path" : "/usr/lib/x86_64-linux-gnu/libstdc++.so.6", "elfType" : 3, "buildId" : "4BF6F7ADD8244AD86008E6BF40D90F8873892197" }, { "b" : "7F5AA937C000", "path" : "/lib/x86_64-linux-gnu/libm.so.6", "elfType" : 3, "buildId" : "1D76B71E905CB867B27CEF230FCB20F01A3178F5" }, { "b" : "7F5AA9166000", "path" : "/lib/x86_64-linux-gnu/libgcc_s.so.1", "elfType" : 3, "buildId" : "36311B4457710AE5578C4BF00791DED7359DBB92" }, { "b" : "7F5AA8F48000", "path" : "/lib/x86_64-linux-gnu/libpthread.so.0", "elfType" : 3, "buildId" : "9318E8AF0BFBE444731BB0461202EF57F7C39542" }, { "b" : "7F5AA8B83000", "path" : "/lib/x86_64-linux-gnu/libc.so.6", "elfType" : 3, "buildId" : "30C94DC66A1FE95180C3D68D2B89E576D5AE213C" }, { "b" : "7F5AAA3CC000", "path" : "/lib64/ld-linux-x86-64.so.2", "elfType" : 3, "buildId" : "9F00581AB3C73E3AEA35995A0C50D24D59A01D47" } ] }}
+ mongod(_ZN5mongo15printStackTraceERSo+0x32) [0x12ea922]
+ mongod(+0xEE9A89) [0x12e9a89]
+ mongod(+0xEEA292) [0x12ea292]
+ libpthread.so.0(+0x10340) [0x7f5aa8f58340]
+ libc.so.6(gsignal+0x39) [0x7f5aa8bb9cc9]
+ libc.so.6(abort+0x148) [0x7f5aa8bbd0d8]
+ mongod(_ZN5mongo13fassertFailedEi+0x82) [0x1275382]
+ mongod(+0xC74313) [0x1074313]
+ mongod(__wt_eventv+0x40C) [0x1a298cc]
+ mongod(__wt_err+0x8D) [0x1a29a6d]
+ mongod(__wt_panic+0x24) [0x1a29e54]
+ mongod(+0x15B454B) [0x19b454b]
+ libpthread.so.0(+0x8182) [0x7f5aa8f50182]
+ libc.so.6(clone+0x6D) [0x7f5aa8c7d47d]
+-----  END BACKTRACE  -----
