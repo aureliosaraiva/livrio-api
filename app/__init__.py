@@ -43,25 +43,52 @@ def route_auth():
 
     return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
-@app.route('/v1/books/<book_id>/loan',methods=['GET','POST'])
-def route_book_loan(book_id):
+@app.route('/v1/loan',methods=['GET'])
+def route_book_loan_all():
     route_require_auth()
     account_id = app.auth.get_request_auth_value()
 
-    if request.method == 'POST': #create
-        data = loan.start_loan(account_id, ObjectId(book_id), ObjectId(request.json['friend_id']), request.json)
-        data['_status'] = 'OK'
-    else:
-        data = loan.info(account_id, ObjectId(book_id))
-        data['_status'] = 'OK'
+    result = loan.all(account_id, request.args)
+    data = {}
+    data['_status'] = 'OK'
+    data['_items'] = result
 
     return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
-@app.route('/v1/books/<book_id>/loan/messages',methods=['POST','GET'])
-def route_book_loan_message(book_id):
+@app.route('/v1/loan/<loan_id>',methods=['GET','POST'])
+def route_book_loan(loan_id):
     route_require_auth()
     account_id = app.auth.get_request_auth_value()
-    book_id = ObjectId(book_id)
+
+    data = loan.info(account_id, ObjectId(loan_id))
+    data['_status'] = 'OK'
+
+    return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route('/v1/loan/<loan_id>/address',methods=['PATCH'])
+def route_book_loan_address(loan_id):
+    route_require_auth()
+    account_id = app.auth.get_request_auth_value()
+
+    loan.address(account_id, ObjectId(loan_id), request.json['address'])
+    data = {'_status' : 'OK' }
+
+    return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route('/v1/books/<book_id>/loan',methods=['POST'])
+def route_book_loan_start(book_id):
+    route_require_auth()
+    account_id = app.auth.get_request_auth_value()
+
+    data = loan.start_loan(account_id, ObjectId(book_id), ObjectId(request.json['friend_id']), request.json)
+    data['_status'] = 'OK'
+    return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
+
+@app.route('/v1/loan/<loan_id>/messages',methods=['POST','GET'])
+def route_book_loan_message(loan_id):
+    route_require_auth()
+    account_id = app.auth.get_request_auth_value()
+    loan_id = ObjectId(loan_id)
 
 
     if request.method == 'GET':
@@ -69,7 +96,7 @@ def route_book_loan_message(book_id):
         if 'offset' in request.args:
             offset = request.args['offset']
 
-        messages = loan.messages(account_id, book_id, offset)
+        messages = loan.messages(account_id, loan_id, offset)
 
         data = {
             '_status': 'OK',
@@ -82,17 +109,17 @@ def route_book_loan_message(book_id):
         #@bug
         data = request.json
         if ('text' in data) and data['text']:
-            comment = loan.create_messages(account_id, book_id, data['text'])
+            comment = loan.create_messages(account_id, loan_id, data['text'])
             comment['_status'] = 'OK'
         return render.render_json(comment), 201, {'Content-Type': 'application/json; charset=utf-8'}
 
 
-@app.route('/v1/books/<book_id>/loan/status',methods=['POST'])
-def route_book_loan_status(book_id):
+@app.route('/v1/loan/<loan_id>/status',methods=['POST'])
+def route_book_loan_status(loan_id):
     route_require_auth()
     account_id = app.auth.get_request_auth_value()
 
-    loan.change_status(account_id, ObjectId(book_id), request.json)
+    loan.change_status(account_id, ObjectId(loan_id), request.json)
     data = {
         '_status': 'OK'
     }

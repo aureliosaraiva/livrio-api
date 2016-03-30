@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from settings import db
-from datetime import datetime
+from datetime import datetime, timedelta
 from bson.objectid import ObjectId
 import account
 import book
@@ -19,32 +19,51 @@ STATUS_NOTIFICATION = {
 
 
 
-def info(account_id, book_id):
-    lookup = {'_id': book_id}
+def all(account_id, params=None):
 
-    bok = db.books.find_one(lookup)
+    lookup = { '$or' :[{ 'owner_id': account_id}, {'friend_id': account_id}] }
 
-    if not 'loaned' in bok:
-        return None
+    if 'active' in params:
+        lookup['status'] = {'$in': ['sent','requested','delivery','delivered','request_return','confirm_return','send_return']}
+    else:
+        lookup['status'] = {'$in': ['cancel','finish']}
 
-    doc = db.books_loans.find_one({'_id': bok['loaned']['loan_id']})
+    print lookup
+    print params
+    cursor = db.books_loans.find(lookup).sort('_created',-1)
 
-    print doc['owner_id']
-    print account_id
+    arr = []
+    for doc in cursor:
+        doc['friend'] = account.info(doc['friend_id'])
+        doc['owner'] = account.info(doc['owner_id'])
+        doc['book'] = book.info(doc['book_id'])
+        arr.append(doc)
+
+    return arr
+
+def info(account_id, loan_id):
+
+    doc = db.books_loans.find_one({'_id': loan_id})
+
     if not doc['owner_id'] == account_id:
         if not doc['friend_id'] == account_id:
             return None
 
-    print doc
     data = {
         '_id': doc['_id'],
         'friend': account.info(doc['friend_id']),
         'owner': account.info(doc['owner_id']),
-        'book': book.info(book_id),
+        'book': book.info(doc['book_id']),
         'status': doc['status'],
         '_created': doc['_created'],
         'duration': doc['duration']
     }
+
+    if 'address' in doc:
+        data['address'] = doc['address']
+
+    if 'delivered_date' in doc:
+        data['delivered_date'] = doc['delivered_date']
 
     return data
 
@@ -94,7 +113,9 @@ def start_loan(account_id, book_id, friend_id, data):
 
     
     user['status'] = type_request
-    user['loan_id'] = payload['_id']
+    
+    user['account_id'] = user['_id']
+    user['_id'] = payload['_id']
 
     db.books.update_one(lookup,{
         '$set':{
@@ -111,14 +132,20 @@ def start_loan(account_id, book_id, friend_id, data):
 
     return user
 
-def change_status(account_id, book_id, data):
-    
-    lookup = {'_id': book_id}
-    date_utc = datetime.utcnow().replace(microsecond=0)
-    doc = db.books.find_one(lookup)
 
-    if not 'loaned' in doc:
-        return None
+def address(account_id, loan_id, address):
+    lookup = { '$or' :[{ 'owner_id': account_id}, {'friend_id': account_id}], '_id': loan_id }
+    db.books_loans.update_one(lookup,{'$set':{'address': address}})
+
+    create_messages(account_id, loan_id, 'Local de entrega: \n' + address,True)
+
+
+def change_status(account_id, loan_id, data):
+    
+    lookup = {'_id': loan_id}
+    date_utc = datetime.utcnow().replace(microsecond=0)
+    doc = db.books_loans.find_one(lookup)
+
 
     payload = {
         '$set': {
@@ -134,13 +161,19 @@ def change_status(account_id, book_id, data):
         }
     }
 
+    if data['status'] == 'delivery':
+        payload['$set']['delivered_date'] = date_utc + timedelta(days=int(doc['duration']))
+
+    if data['status'] == 'finish':
+        payload['$set']['finished_date'] = date_utc
+
     
-    db.books_loans.update_one({'_id': doc['loaned']['loan_id']},payload)
+    db.books_loans.update_one(lookup,payload)
+
+    lookup = {'_id': doc['book_id']}
 
 
-    print payload
-
-    if data['status'] in ['requested_denied','returned','sent_canceled','requested_canceled']:
+    if data['status'] in ['requested_denied','returned','sent_canceled','requested_canceled','cancel','finish']:
         db.books.update_one(lookup,{'$unset':{'loaned':''}})
     else:
         db.books.update_one(lookup,{'$set':{'loaned.status':data['status']}})
@@ -180,18 +213,14 @@ def get_info_old(account_id, loan_id):
 
     return doc
 
-def messages(account_id, book_id, offset=0):
+def messages(account_id, loan_id, offset=0):
 
     offset = int(offset)
-    lookup = {'_id': book_id}
+    print {'_id': loan_id}
+    doc = db.books_loans.find_one({'_id': loan_id},{'messages':1})
 
-    bok = db.books.find_one(lookup)
-
-    if not 'loaned' in bok:
-        return None
-
-    doc = db.books_loans.find_one({'_id': bok['loaned']['loan_id']},{'messages':1})
-
+    print doc
+    print loan_id
     if 'messages' in doc:
         d = []
         i = -1
@@ -205,13 +234,7 @@ def messages(account_id, book_id, offset=0):
     else:
         return []
 
-def create_messages(account_id, book_id, text):
-    lookup = {'_id': book_id}
-
-    bok = db.books.find_one(lookup)
-
-    if not 'loaned' in bok:
-        return None
+def create_messages(account_id, loan_id, text, system=False):
 
     date_utc = datetime.utcnow().replace(microsecond=0)
 
@@ -222,8 +245,11 @@ def create_messages(account_id, book_id, text):
         '_created': date_utc
     }
 
+    if system:
+        payload['system'] = True
 
 
-    db.books_loans.update_one({'_id': bok['loaned']['loan_id']}, {'$push':{'messages': payload}}, upsert=False)
+
+    db.books_loans.update_one({'_id': loan_id}, {'$push':{'messages': payload}}, upsert=False)
 
     return payload
