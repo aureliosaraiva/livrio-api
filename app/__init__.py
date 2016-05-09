@@ -15,7 +15,7 @@ CORS(app)
 
 @app.route('/v1/logout',methods=['DELETE'])
 def route_logout():
-    
+
     route_require_auth()
     account_id = app.auth.get_request_auth_value()
     account.logout(account_id)
@@ -25,7 +25,7 @@ def route_logout():
 
 @app.route('/v1/auth',methods=['POST'])
 def route_auth():
-    
+
     if 'token' in request.json:
         token = request.json['token']
         data = account.login(access_token=token)
@@ -154,7 +154,7 @@ def route_book_loan_status_old(book_id):
 
 @app.route('/v1/accounts/create',methods=['POST'])
 def route_account_create():
-    
+
     try:
         result = account.create(request.json)
 
@@ -201,7 +201,7 @@ def route_account_info(account_id):
     route_require_auth()
     if not ObjectId(account_id) == app.auth.get_request_auth_value():
         abort(401, description='Not permission')
-    
+
     data = account.account_info(ObjectId(account_id))
 
     return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
@@ -210,7 +210,7 @@ def route_account_info(account_id):
 def route_account():
     route_require_auth()
     account_id = app.auth.get_request_auth_value()
-    
+
     data = account.account_info(account_id)
 
     data['_status'] = 'OK'
@@ -221,9 +221,9 @@ def route_account():
 def route_account_update():
     route_require_auth()
     account_id = app.auth.get_request_auth_value()
-    
+
     account.account_update(account_id, request.json)
-    
+
     data = {
         '_status': 'OK'
     }
@@ -236,9 +236,9 @@ def route_account_update_old(account_id):
     route_require_auth()
     if not ObjectId(account_id) == app.auth.get_request_auth_value():
         abort(401, description='Not permission')
-    
+
     account.account_update(ObjectId(account_id), request.json)
-    
+
     data = {
         '_status': 'OK'
     }
@@ -250,9 +250,9 @@ def route_account_device(account_id):
     route_require_auth()
     if not ObjectId(account_id) == app.auth.get_request_auth_value():
         abort(401, description='Not permission')
-    
+
     account.account_device(ObjectId(account_id), request.json)
-    
+
     data = {
         '_status': 'OK'
     }
@@ -589,7 +589,7 @@ def route_notifications():
 
         data = notification.notification_create(account_id,request.json)
         return render.render_json(data), 201, {'Content-Type': 'application/json; charset=utf-8'}
-    
+
 @app.route('/v1/notifications/<notification_id>/read',methods=['PATCH'])
 def route_notifications_read(notification_id):
     route_require_auth()

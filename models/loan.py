@@ -21,15 +21,15 @@ STATUS_NOTIFICATION = {
 
 def all(account_id, params=None):
 
-    lookup = { '$or' :[{ 'owner_id': account_id}, {'friend_id': account_id}] }
+    lookup = { }
 
-    if 'active' in params:
-        lookup['status'] = {'$in': ['sent','requested','delivery','delivered','request_return','confirm_return','send_return']}
+    lookup['status'] = {'$in': ['sent','requested','delivery','delivered','request_return','confirm_return','send_return']}
+    if 'loan_friend' in params:
+        lookup['friend_id'] = account_id
     else:
-        lookup['status'] = {'$in': ['cancel','finish']}
+        lookup['owner_id'] = account_id
 
     print lookup
-    print params
     cursor = db.books_loans.find(lookup).sort('_created',-1)
 
     arr = []
@@ -86,11 +86,11 @@ def start_loan(account_id, book_id, friend_id, data):
         type_request = 'sent'
         type_notification = 'LOAN_CONFIRM'
 
-
     # Amigo está pedindo emprestado
     else:
         type_request = 'requested'
         type_notification = 'LOAN_REQUEST'
+        friend_id = doc['account_id']
 
     payload = {
         '_created': date_utc,
@@ -98,7 +98,7 @@ def start_loan(account_id, book_id, friend_id, data):
         '_deleted': False,
         'book_id': book_id,
         'owner_id': doc['account_id'],
-        'friend_id': friend_id,
+        'friend_id': account_id,
         'type': type_request,
         'status': type_request
     }
@@ -111,9 +111,9 @@ def start_loan(account_id, book_id, friend_id, data):
 
     db.books_loans.insert_one(payload)
 
-    
+
     user['status'] = type_request
-    
+
     user['account_id'] = user['_id']
     user['_id'] = payload['_id']
 
@@ -123,11 +123,12 @@ def start_loan(account_id, book_id, friend_id, data):
         }
     })
 
+
     # Notificações
     notification.notify(
-        account_id=account_id, 
-        friend_id=friend_id, 
-        book_id=book_id, 
+        account_id=account_id,
+        friend_id=friend_id,
+        book_id=book_id,
         group=notification.TYPE[type_notification])
 
     return user
@@ -141,7 +142,7 @@ def address(account_id, loan_id, address):
 
 
 def change_status(account_id, loan_id, data):
-    
+
     lookup = {'_id': loan_id}
     date_utc = datetime.utcnow().replace(microsecond=0)
     doc = db.books_loans.find_one(lookup)
@@ -167,7 +168,7 @@ def change_status(account_id, loan_id, data):
     if data['status'] == 'finish':
         payload['$set']['finished_date'] = date_utc
 
-    
+
     db.books_loans.update_one(lookup,payload)
 
     lookup = {'_id': doc['book_id']}
@@ -189,9 +190,9 @@ def change_status(account_id, loan_id, data):
             friend_id = loaned['owner_id']
 
         notification.notify(
-            account_id=account_id, 
-            friend_id=friend_id, 
-            book_id=book_id, 
+            account_id=account_id,
+            friend_id=friend_id,
+            book_id=book_id,
             group=notification.TYPE[STATUS_NOTIFICATION[data['status']]])
 
     return True
@@ -228,7 +229,7 @@ def messages(account_id, loan_id, offset=0):
             i += 1
             if i>offset:
                 d.append(m)
-            
+
         return d
 
     else:

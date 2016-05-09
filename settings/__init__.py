@@ -19,10 +19,12 @@ if PRODUCTION:
     MONGO_PORT = 4455
     DEBUG = False
     MONGO_DB = "mongodb://db.codeway.in:4455"
+    PRIMARY_ACCOUNT = ObjectId("56c088952567a539023dc419")
 else:
     MONGO_PORT = 27017
     DEBUG = True
     MONGO_DB = "mongodb://db.codeway.in:27017"
+    PRIMARY_ACCOUNT = ObjectId("572fbb33a94acc3383ea1cb8")
 # Task Broker
 
 BROKER_HEARTBEAT = 0
@@ -39,7 +41,7 @@ DEBUG_CONFIG = {
     'token': 'drtAhphyTsw:APA91bGZHNIfXFTQfFx86poUni3CbDdyKNUbkbYvAWoURdHJF4VrQgxw7dWAnBYpjT75XPIAF4XttqLOrulccAzyGP1N-tfrbl_dM158w_fuXlrPvEUkaGK8eI8lzFOaPTWjiKQ00tX3'
 }
 
-PRIMARY_ACCOUNT = ObjectId("56c088952567a539023dc419")
+
 
 REDIS_HOST = 'localhost'
 REDIS_PORT = 6379
@@ -136,7 +138,7 @@ EVE_SETTINGS_APP = {
             'cache_expires': 0,
             'extra_response_fields': ['name'],
             'datasource': {
-                'default_sort': [('name',1)] 
+                'default_sort': [('name',1)]
             },
             'schema': {
                 'name': {
@@ -214,7 +216,7 @@ EVE_SETTINGS_ISBN = {
                 'isbn_10': {
                     'type': 'string'
                 },
-                
+
                 'isbn_other': {
                     'type': 'string'
                 },

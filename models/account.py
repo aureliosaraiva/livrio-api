@@ -36,8 +36,18 @@ def save_photo(account_id, source):
         pass
 
 
+def is_check_duplicate(email):
+    doc = db.accounts.find_one({'email':email})
+    if not doc:
+        return False
+
+    return True
+
 def create(data):
-    
+
+    if is_check_duplicate(data['email']):
+        return False
+
     date_utc = datetime.utcnow().replace(microsecond=0)
 
     payload = {
@@ -77,7 +87,7 @@ def create(data):
 
     # Notificação
     notification.notify(
-        friend_id=payload['_id'], 
+        friend_id=payload['_id'],
         group=notification.TYPE['SYSTEM_WELCOME'])
 
     schedule.send_mail(payload['_id'],'signup')
@@ -114,7 +124,7 @@ def login(email=None, password=None, access_token=None):
     else:
         doc = login_facebook(access_token)
 
-    
+
     auth = doc['auth']
 
     if 'mode' in auth and auth['mode'] == 'php' and password:
@@ -131,7 +141,7 @@ def login(email=None, password=None, access_token=None):
 
     _token = token.create()
     lookup = {'_id':doc['_id']}
-    
+
     payload = {
         '$set': {
             'auth.token': _token
@@ -149,7 +159,7 @@ def logout(account_id):
 
     lookup = {'_id':account_id}
 
-    
+
     payload = {
         '$set': {
             'auth.token': None
@@ -194,7 +204,7 @@ def account_update(account_id, data):
             payload_data['birthday'] = datetime.strptime(str(data['birthday']),'%Y-%m-%d')
         except:
             pass
-    
+
     if 'state' in data:
         payload_data['location.state'] = data['state']
 
@@ -232,7 +242,7 @@ def info(account_id, restrict=False):
         'fullname':1
     })
 
-    return doc   
+    return doc
 
 
 #@bug tratar data
@@ -245,6 +255,7 @@ def account_info(account_id, restrict=False):
         'gender':1,
         'birthday':1,
         'photo':1,
+        'phone': 1,
         'cover':1,
         'location':1,
         'fullname':1,
@@ -269,6 +280,9 @@ def account_info(account_id, restrict=False):
         if 'city' in doc['location']:
             doc['city'] = doc['location']['city']
 
+    if 'birthday' in doc:
+        doc['birthday'] = doc['birthday'].strftime('%Y-%m-%d')
+
     if not 'config' in doc:
         doc['config'] = {'allowSearchEmail':True,'allowLocation':False,'allowNotificationPush':True,'allowNotificationEmail':True}
 
@@ -285,7 +299,7 @@ def account_info_basic(account_id, multi=False, friend_id=None):
                 doc['photo'] = DEFAULT['user']
             users[doc['_id']] = doc
         return users
-    
+
 
     lookup = {'_id':account_id}
 
