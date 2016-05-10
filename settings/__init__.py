@@ -14,20 +14,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 #db.isbn.createIndex( { isbn: 1, isbn_10: 1 } )
 #db.books.ensureIndex({ title: "text", subtitle : "text", isbn : "text",publisher: "text",description:"text",authors:"text" })
 
-PRODUCTION = False
+PRODUCTION = True
 
 if PRODUCTION:
     MONGO_PORT = 4455
     DEBUG = False
     MONGO_DB = "mongodb://db.codeway.in:4455"
     PRIMARY_ACCOUNT = ObjectId("56c088952567a539023dc419")
-    rollbar.init('4a3e8a5822be413ba80214a77def3702', 'production')  # access_token, environment
 else:
     MONGO_PORT = 27017
     DEBUG = True
     MONGO_DB = "mongodb://db.codeway.in:27017"
     PRIMARY_ACCOUNT = ObjectId("572fbb33a94acc3383ea1cb8")
-    rollbar.init('4a3e8a5822be413ba80214a77def3702', 'production')  # access_token, environment
 # Task Broker
 
 BROKER_HEARTBEAT = 0
