@@ -14,3 +14,5 @@ ndg-httpsclient
 mixpanel
 flask-cors
 python-dateutil
+rollbar
+slackweb

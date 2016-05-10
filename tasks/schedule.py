@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tasks import task_insert_book, task_event, task_send_email, task_send_push, task_location, task_download_photo_account, task_download_cover_account, task_download_cover_book, task_download_cover_isbn
+from tasks import task_insert_book, task_slack, task_event, task_send_email, task_send_push, task_location, task_download_photo_account, task_download_cover_account, task_download_cover_book, task_download_cover_isbn
 from settings import db
 from datetime import datetime
 
@@ -29,6 +29,13 @@ def send_push(notification_id):
         task_send_push.apply_async(args)
     except Exception, e:
         register_failure('task_send_push',args, str(e))
+
+def slack_notify(content):
+    args = [content]
+    try:
+        task_slack.apply_async(args)
+    except Exception, e:
+        register_failure('task_slack',args, str(e))
 
 
 def search_location(account_id):
@@ -87,4 +94,3 @@ def event(event_type, account_id, book_id=None, timer=None):
     except Exception, e:
         print e
         register_failure('task_event',args, str(e))
-

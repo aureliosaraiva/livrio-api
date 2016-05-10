@@ -612,5 +612,7 @@ def route_notifications_view():
     return render.render_json(data), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
+print "run"
 if __name__ == '__main__':
+    print "app.run"
     app.run()

@@ -91,6 +91,7 @@ def create(data):
         group=notification.TYPE['SYSTEM_WELCOME'])
 
     schedule.send_mail(payload['_id'],'signup')
+    schedule.slack_notify(content="{0} criou uma conta com o email {1}".format(payload['fullname'], payload['email']))
     event_profile(payload['_id'])
 
     return payload

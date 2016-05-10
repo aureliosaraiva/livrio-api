@@ -7,6 +7,7 @@ import event
 
 
 
+
 @celery.task(queue='mailer', ignore_result=True)
 def task_send_email(account_id, template):
     import mail
@@ -23,6 +24,11 @@ def task_send_push(notification_id):
     import push
     push.send_push(notification_id)
 
+@celery.task(queue='push', ignore_result=True)
+def task_slack(content, template):
+    import slackweb
+    slack = slackweb.Slack(url=settings.SLACK_HOOK)
+    slack.notify(text=content)
 
 @celery.task(queue='image', ignore_result=True)
 def task_download_cover_account(account_id, url):
@@ -73,4 +79,3 @@ def task_event(event_type, account_id, book_id=None, timer=None):
         event.profile(account_id, timer)
     else:
         event.register(event_type, account_id, book_id, timer)
-

@@ -2,6 +2,7 @@ import os
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 #######################################################################
@@ -20,11 +21,13 @@ if PRODUCTION:
     DEBUG = False
     MONGO_DB = "mongodb://db.codeway.in:4455"
     PRIMARY_ACCOUNT = ObjectId("56c088952567a539023dc419")
+    rollbar.init('4a3e8a5822be413ba80214a77def3702', 'production')  # access_token, environment
 else:
     MONGO_PORT = 27017
     DEBUG = True
     MONGO_DB = "mongodb://db.codeway.in:27017"
     PRIMARY_ACCOUNT = ObjectId("572fbb33a94acc3383ea1cb8")
+    rollbar.init('4a3e8a5822be413ba80214a77def3702', 'production')  # access_token, environment
 # Task Broker
 
 BROKER_HEARTBEAT = 0
@@ -33,6 +36,8 @@ CELERY_RESULT_BACKEND = "amqp://"
 CELERY_TASK_RESULT_EXPIRES = 1
 CELERY_ACCEPT_CONTENT = ['pickle']
 CELERYD_CONCURRENCY = 10
+
+SLACK_HOOK = "https://hooks.slack.com/services/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"
 
 
 DEBUG_CONFIG = {
